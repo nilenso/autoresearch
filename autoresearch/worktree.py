@@ -11,6 +11,7 @@ candidates, so rebuilding every time would dominate the run.
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import threading
@@ -37,11 +38,18 @@ class Pool:
     """
 
     def __init__(self, sha: str, base: Path | None = None,
-                 files: tuple[str, ...] | None = None):
+                 files: tuple[str, ...] | None = None,
+                 tag: str | None = None):
         self.sha = sha
         self.files = files  # None means "use the lever's curated default"
         self.repo = config.repo_root()
         self.base = base or self.repo.parent
+        # Copies used to be named after the commit alone, so a second run
+        # against the same commit computed the same name, found the folder
+        # already there, and deleted it -- taking the first run's tool with
+        # it. The process id makes the name unique to this run, so two
+        # experiments can share a commit without treading on each other.
+        self.tag = tag or str(os.getpid())
         self._trees: dict[int, Path] = {}
         self._lock = threading.Lock()
 
@@ -61,7 +69,8 @@ class Pool:
         key = threading.get_ident()
         with self._lock:
             if key not in self._trees:
-                self._trees[key] = self._create(f"{self.sha}-{len(self._trees)}")
+                self._trees[key] = self._create(
+                    f"{self.sha}-{self.tag}-{len(self._trees)}")
             return self._trees[key]
 
     def write_candidate(self, tree: Path, lever: str, files: dict[str, str]) -> None:
@@ -109,5 +118,9 @@ class Pool:
             self._trees.clear()
 
     def prune(self) -> None:
-        """Clear out copies left behind by a run that was killed."""
+        """Clear out copies left behind by a run that was killed.
+
+        Only clears registrations git already considers stale, so a copy in
+        use by another live run is left alone.
+        """
         subprocess.run(["git", "worktree", "prune"], cwd=self.repo, capture_output=True)

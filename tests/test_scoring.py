@@ -398,3 +398,33 @@ class TestCreditsCheck:
                             lambda key, **kw: (_ for _ in ()).throw(credits.Unauthorized("no")))
         with pytest.raises(credits.Unauthorized):
             config.preflight()
+
+
+class TestConcurrentRunsDoNotCollide:
+    """Two experiments against the same commit must not share a copy.
+
+    Copies were named after the commit alone, so a second run computed the
+    same name, found the folder already there, and deleted it -- destroying a
+    running experiment's tool partway through.
+    """
+
+    def test_two_pools_pick_different_names(self, monkeypatch, tmp_path):
+        from autoresearch.worktree import Pool
+
+        monkeypatch.setattr(config, "repo_root", lambda: tmp_path / "botmap")
+        first, second = Pool("abc1234", tag="run-a"), Pool("abc1234", tag="run-b")
+        assert first.tag != second.tag
+
+        made: list[str] = []
+        for pool in (first, second):
+            monkeypatch.setattr(Pool, "_create", lambda self, name: made.append(name) or tmp_path)
+            pool.acquire()
+        assert made[0] != made[1], "both runs would use the same copy"
+        assert all("abc1234" in name for name in made)
+
+    def test_tag_defaults_to_something_process_specific(self, monkeypatch, tmp_path):
+        import os as _os
+        from autoresearch.worktree import Pool
+
+        monkeypatch.setattr(config, "repo_root", lambda: tmp_path / "botmap")
+        assert Pool("abc1234").tag == str(_os.getpid())
