@@ -1,0 +1,433 @@
+{
+  "commit": "3009509",
+  "heldout_questions": [
+    "hardware-near-bikepaths",
+    "pharmacies-monaco",
+    "street-canonical-form",
+    "unsupported-hours-and-ratings",
+    "which-admin-areas"
+  ],
+  "base_spread": 0.18730514256992414,
+  "gepa": [
+    {
+      "arm": "Arm B",
+      "lever": "prompt",
+      "run": "prompt-3009509-1787544952",
+      "base": 0.7171183364842026,
+      "final_best": 0.7171183364842026,
+      "delta": 0.0,
+      "beat_base": false,
+      "heldout": [
+        "street-canonical-form",
+        "pharmacies-monaco",
+        "hardware-near-bikepaths",
+        "unsupported-hours-and-ratings",
+        "which-admin-areas"
+      ],
+      "editable_files": 1,
+      "candidates": 5,
+      "evaluations": 63,
+      "budget": 60,
+      "iterations": [
+        {
+          "i": 0,
+          "outcome": "base",
+          "parent": null,
+          "parent_score": null,
+          "candidate_score": 0.7171183364842026,
+          "candidate_index": 0,
+          "best_so_far": 0.7171183364842026,
+          "pareto": null,
+          "minibatch_old": null,
+          "minibatch_new": null
+        },
+        {
+          "i": 1,
+          "outcome": "rejected",
+          "parent": 0,
+          "parent_score": 0.7171183364842026,
+          "candidate_score": null,
+          "candidate_index": null,
+          "best_so_far": 0.7171183364842026,
+          "pareto": null,
+          "minibatch_old": 2.2067625677866527,
+          "minibatch_new": 2.172470201060776
+        },
+        {
+          "i": 2,
+          "outcome": "accepted",
+          "parent": 0,
+          "parent_score": 0.7171183364842026,
+          "candidate_score": 0.6158909004401625,
+          "candidate_index": 1,
+          "best_so_far": 0.7171183364842026,
+          "pareto": 0.7496840263523201,
+          "minibatch_old": 1.560518014556387,
+          "minibatch_new": 1.9231004439875594
+        },
+        {
+          "i": 3,
+          "outcome": "no_proposal",
+          "parent": 0,
+          "parent_score": 0.7171183364842026,
+          "candidate_score": null,
+          "candidate_index": null,
+          "best_so_far": 0.7171183364842026,
+          "pareto": 0.7496840263523201,
+          "minibatch_old": null,
+          "minibatch_new": null
+        },
+        {
+          "i": 4,
+          "outcome": "rejected",
+          "parent": 0,
+          "parent_score": 0.7171183364842026,
+          "candidate_score": null,
+          "candidate_index": null,
+          "best_so_far": 0.7171183364842026,
+          "pareto": 0.7496840263523201,
+          "minibatch_old": 2.291297407073742,
+          "minibatch_new": 2.20258656965746
+        },
+        {
+          "i": 5,
+          "outcome": "accepted",
+          "parent": 1,
+          "parent_score": 0.6158909004401625,
+          "candidate_score": 0.4947683096963408,
+          "candidate_index": 2,
+          "best_so_far": 0.7171183364842026,
+          "pareto": 0.7513385215732364,
+          "minibatch_old": 1.7651824296543956,
+          "minibatch_new": 2.3846063272641866
+        },
+        {
+          "i": 6,
+          "outcome": "accepted",
+          "parent": 0,
+          "parent_score": 0.7171183364842026,
+          "candidate_score": 0.5220595289553529,
+          "candidate_index": 3,
+          "best_so_far": 0.7171183364842026,
+          "pareto": 0.7647707358535898,
+          "minibatch_old": 1.4392173621795037,
+          "minibatch_new": 2.4970483753712074
+        },
+        {
+          "i": 7,
+          "outcome": "accepted",
+          "parent": 0,
+          "parent_score": 0.7171183364842026,
+          "candidate_score": 0.6955642283862925,
+          "candidate_index": 4,
+          "best_so_far": 0.7171183364842026,
+          "pareto": 0.7655248827858852,
+          "minibatch_old": 1.3431608680698137,
+          "minibatch_new": 1.5519633808612
+        }
+      ]
+    },
+    {
+      "arm": "Arm C",
+      "lever": "tool, 83 files",
+      "run": "tool-3009509-1787550419",
+      "base": 0.5764396869574474,
+      "final_best": 0.582437538068437,
+      "delta": 0.005997851110989605,
+      "beat_base": true,
+      "heldout": [
+        "street-canonical-form",
+        "pharmacies-monaco",
+        "hardware-near-bikepaths",
+        "unsupported-hours-and-ratings",
+        "which-admin-areas"
+      ],
+      "editable_files": 83,
+      "candidates": 4,
+      "evaluations": 62,
+      "budget": 60,
+      "iterations": [
+        {
+          "i": 0,
+          "outcome": "base",
+          "parent": null,
+          "parent_score": null,
+          "candidate_score": 0.5764396869574474,
+          "candidate_index": 0,
+          "best_so_far": 0.5764396869574474,
+          "pareto": null,
+          "minibatch_old": null,
+          "minibatch_new": null
+        },
+        {
+          "i": 1,
+          "outcome": "rejected",
+          "parent": 0,
+          "parent_score": 0.5764396869574474,
+          "candidate_score": null,
+          "candidate_index": null,
+          "best_so_far": 0.5764396869574474,
+          "pareto": null,
+          "minibatch_old": 2.338435876929969,
+          "minibatch_new": 1.858572410563616
+        },
+        {
+          "i": 2,
+          "outcome": "rejected",
+          "parent": 0,
+          "parent_score": 0.5764396869574474,
+          "candidate_score": null,
+          "candidate_index": null,
+          "best_so_far": 0.5764396869574474,
+          "pareto": null,
+          "minibatch_old": 2.069610390186966,
+          "minibatch_new": 1.8525168921657618
+        },
+        {
+          "i": 3,
+          "outcome": "accepted",
+          "parent": 0,
+          "parent_score": 0.5764396869574474,
+          "candidate_score": 0.479827106072882,
+          "candidate_index": 1,
+          "best_so_far": 0.5764396869574474,
+          "pareto": 0.6488134522998983,
+          "minibatch_old": 0.8014538518122065,
+          "minibatch_new": 1.4773421006716567
+        },
+        {
+          "i": 4,
+          "outcome": "rejected",
+          "parent": 0,
+          "parent_score": 0.5764396869574474,
+          "candidate_score": null,
+          "candidate_index": null,
+          "best_so_far": 0.5764396869574474,
+          "pareto": 0.6488134522998983,
+          "minibatch_old": 1.6613027101738231,
+          "minibatch_new": 1.5013390666283426
+        },
+        {
+          "i": 5,
+          "outcome": "rejected",
+          "parent": 1,
+          "parent_score": 0.479827106072882,
+          "candidate_score": null,
+          "candidate_index": null,
+          "best_so_far": 0.5764396869574474,
+          "pareto": 0.6488134522998983,
+          "minibatch_old": 1.9707663987699073,
+          "minibatch_new": 1.9254196795427199
+        },
+        {
+          "i": 6,
+          "outcome": "accepted",
+          "parent": 0,
+          "parent_score": 0.5764396869574474,
+          "candidate_score": 0.582437538068437,
+          "candidate_index": 2,
+          "best_so_far": 0.582437538068437,
+          "pareto": 0.6588067096076856,
+          "minibatch_old": 1.7127614091892995,
+          "minibatch_new": 1.768794883222766
+        },
+        {
+          "i": 7,
+          "outcome": "accepted",
+          "parent": 0,
+          "parent_score": 0.5764396869574474,
+          "candidate_score": 0.5093691116655419,
+          "candidate_index": 3,
+          "best_so_far": 0.582437538068437,
+          "pareto": 0.6733402130544495,
+          "minibatch_old": 0.7087533998980424,
+          "minibatch_new": 1.2375917862387258
+        }
+      ]
+    },
+    {
+      "arm": "tool-narrow",
+      "lever": "tool, 4 files",
+      "run": "tool-3009509-1787049966",
+      "base": 0.7637448295273715,
+      "final_best": 0.77982014101868,
+      "delta": 0.016075311491308475,
+      "beat_base": true,
+      "heldout": [
+        "street-canonical-form",
+        "pharmacies-monaco",
+        "hardware-near-bikepaths",
+        "unsupported-hours-and-ratings",
+        "which-admin-areas"
+      ],
+      "editable_files": 4,
+      "candidates": 3,
+      "evaluations": 61,
+      "budget": 60,
+      "iterations": [
+        {
+          "i": 0,
+          "outcome": "base",
+          "parent": null,
+          "parent_score": null,
+          "candidate_score": 0.7637448295273715,
+          "candidate_index": 0,
+          "best_so_far": 0.7637448295273715,
+          "pareto": null,
+          "minibatch_old": null,
+          "minibatch_new": null
+        },
+        {
+          "i": 1,
+          "outcome": "rejected",
+          "parent": 0,
+          "parent_score": 0.7637448295273715,
+          "candidate_score": null,
+          "candidate_index": null,
+          "best_so_far": 0.7637448295273715,
+          "pareto": null,
+          "minibatch_old": 2.122270865752723,
+          "minibatch_new": 1.929534652969695
+        },
+        {
+          "i": 2,
+          "outcome": "rejected",
+          "parent": 0,
+          "parent_score": 0.7637448295273715,
+          "candidate_score": null,
+          "candidate_index": null,
+          "best_so_far": 0.7637448295273715,
+          "pareto": null,
+          "minibatch_old": 2.419859577391893,
+          "minibatch_new": 2.4016149319519036
+        },
+        {
+          "i": 3,
+          "outcome": "rejected",
+          "parent": 0,
+          "parent_score": 0.7637448295273715,
+          "candidate_score": null,
+          "candidate_index": null,
+          "best_so_far": 0.7637448295273715,
+          "pareto": null,
+          "minibatch_old": 2.0787890711174444,
+          "minibatch_new": 1.6489073197069004
+        },
+        {
+          "i": 4,
+          "outcome": "rejected",
+          "parent": 0,
+          "parent_score": 0.7637448295273715,
+          "candidate_score": null,
+          "candidate_index": null,
+          "best_so_far": 0.7637448295273715,
+          "pareto": null,
+          "minibatch_old": 1.7593192073142279,
+          "minibatch_new": 0.0
+        },
+        {
+          "i": 5,
+          "outcome": "accepted",
+          "parent": 0,
+          "parent_score": 0.7637448295273715,
+          "candidate_score": 0.6263882942302497,
+          "candidate_index": 1,
+          "best_so_far": 0.7637448295273715,
+          "pareto": 0.772553292622286,
+          "minibatch_old": 0.0,
+          "minibatch_new": 2.0203555954524814
+        },
+        {
+          "i": 6,
+          "outcome": "rejected",
+          "parent": 1,
+          "parent_score": 0.6263882942302497,
+          "candidate_score": null,
+          "candidate_index": null,
+          "best_so_far": 0.7637448295273715,
+          "pareto": 0.772553292622286,
+          "minibatch_old": 2.3858612306826346,
+          "minibatch_new": 2.010523822838155
+        },
+        {
+          "i": 7,
+          "outcome": "rejected",
+          "parent": 0,
+          "parent_score": 0.7637448295273715,
+          "candidate_score": null,
+          "candidate_index": null,
+          "best_so_far": 0.7637448295273715,
+          "pareto": 0.772553292622286,
+          "minibatch_old": 2.320913008844578,
+          "minibatch_new": 0.0
+        },
+        {
+          "i": 8,
+          "outcome": "accepted",
+          "parent": 0,
+          "parent_score": 0.7637448295273715,
+          "candidate_score": 0.77982014101868,
+          "candidate_index": 2,
+          "best_so_far": 0.77982014101868,
+          "pareto": 0.8127675530694745,
+          "minibatch_old": 2.1592956154616814,
+          "minibatch_new": 2.1605799252708477
+        }
+      ]
+    }
+  ],
+  "paired": [
+    {
+      "label": "Exp 1  truncation warning",
+      "run": "after-categories-truncation-hint-00bff1a",
+      "subtype": "c-truncated",
+      "arm": "paired programme",
+      "attempts": 6,
+      "before": 13,
+      "after": 5
+    },
+    {
+      "label": "Exp 2  wrong-column hint",
+      "run": "after-count-wrong-column-hint-7c794ff",
+      "subtype": "c-wrong-column",
+      "arm": "paired programme",
+      "attempts": 4,
+      "before": 2,
+      "after": 0
+    },
+    {
+      "label": "Exp 3  wrong-type hint",
+      "run": "after-wrong-type-hint-tool-9ba1187",
+      "subtype": "c-wrong-type",
+      "arm": "Arm D",
+      "attempts": 4,
+      "before": 3,
+      "after": 0
+    },
+    {
+      "label": "Exp 4  categories --search",
+      "run": "arm-e-categories-search-c-truncated-4a197c3",
+      "subtype": "c-truncated",
+      "arm": "Arm E",
+      "attempts": 13,
+      "before": 25,
+      "after": 1
+    }
+  ],
+  "baseline": {
+    "records": 60,
+    "class_counts": {
+      "clean": 389,
+      "C": 55,
+      "B": 15,
+      "A": 38,
+      "D": 3
+    },
+    "subtype_counts": {
+      "c-truncated": 25,
+      "c-unknown": 25,
+      "c-wrong-type": 3,
+      "c-wrong-column": 2
+    }
+  }
+}

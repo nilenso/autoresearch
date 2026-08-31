@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Optimizer trajectories — agent-friendly CLI study</title>
+<style>
+:root { color-scheme: light dark; }
+.viz-root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface-1: #fcfcfb;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10);
+  --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a;
+  --ramp-light: #86b6ef; --ramp-dark: #1c5cab; --connector: #c3c2b7;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface-1: #1a1a19;
+    --text-primary: #fff; --text-secondary: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+    --ramp-light: #86b6ef; --ramp-dark: #184f95; --connector: #383835;
+  }
+}
+:root[data-theme="dark"] .viz-root {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface-1: #1a1a19;
+  --text-primary: #fff; --text-secondary: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+  --ramp-light: #86b6ef; --ramp-dark: #184f95; --connector: #383835;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); }
+.viz-root {
+  background: var(--page); color: var(--text-primary); min-height: 100vh;
+  font: 14px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+  padding: 40px 24px 72px;
+}
+.wrap { max-width: 1000px; margin: 0 auto; }
+h1 { font-size: 25px; line-height: 1.25; margin: 0 0 6px; letter-spacing: -.01em; }
+h2 { font-size: 17px; margin: 44px 0 4px; letter-spacing: -.005em; }
+h3 { font-size: 14.5px; margin: 26px 0 2px; letter-spacing: -.003em; }
+table.arms td, table.arms th { text-align: left; font-variant-numeric: normal; vertical-align: top; }
+table.arms td:first-child { white-space: nowrap; }
+.lede, .note { color: var(--text-secondary); margin: 0 0 4px; }
+.prov { color: var(--muted); font-size: 12.5px; margin: 10px 0 0; }
+.callout {
+  border: 1px solid var(--border); border-left: 3px solid var(--series-2);
+  background: var(--surface-1); border-radius: 8px;
+  padding: 14px 16px; margin: 22px 0 8px; color: var(--text-secondary);
+}
+.callout b { color: var(--text-primary); }
+.card {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: 10px; padding: 18px 18px 10px; margin: 14px 0;
+}
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 8px; }
+.panel { width: 100%; height: auto; display: block; overflow: visible; }
+.panel-fig { margin: 0; }
+.panel-fig figcaption { margin: 0 0 2px 4px; font-size: 13px; }
+.panel-fig figcaption b { color: var(--text-primary); }
+.panel-fig figcaption span { color: var(--muted); margin-left: 8px; font-size: 12.5px; }
+.tick { fill: var(--muted); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.axis-title { fill: var(--muted); font-size: 11px; }
+.endlabel { font-size: 11.5px; font-weight: 600; }
+.rowlabel { fill: var(--text-primary); font-size: 12.5px; }
+.rowsub { fill: var(--muted); font-size: 11px; }
+.endval { fill: var(--text-secondary); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.dot { cursor: default; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 4px 0 2px 4px; font-size: 12.5px; color: var(--text-secondary); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.sw { width: 20px; height: 3px; border-radius: 2px; display: inline-block; }
+.sw.dot-sw { width: 10px; height: 10px; border-radius: 50%; }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; margin-top: 6px; }
+th, td { text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+th:first-child, td:first-child { text-align: left; font-variant-numeric: normal; }
+th { color: var(--muted); font-weight: 600; }
+td { color: var(--text-secondary); }
+td.key { color: var(--text-primary); }
+details { margin: 10px 0 0; }
+summary { cursor: pointer; color: var(--text-secondary); font-size: 12.5px; padding: 4px 0; }
+ul.bullets { margin: 6px 0 14px; padding-left: 20px; color: var(--text-secondary); }
+ul.bullets li { margin: 5px 0; }
+ul.bullets b { color: var(--text-primary); }
+.arm-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin: 12px 0; }
+.arm-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.arm-card .tag { display: inline-block; font-size: 10.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.arm-card h4 { margin: 4px 0 6px; font-size: 13.5px; }
+.arm-card p { margin: 0 0 6px; font-size: 12.5px; color: var(--text-secondary); }
+.arm-card .result { font-size: 12.5px; color: var(--text-primary); font-weight: 600; }
+a.trace { font-size: 11.5px; white-space: nowrap; }
+.pending { color: var(--muted); font-size: 11.5px; font-style: italic; }
+.pbars { display: flex; flex-direction: column; gap: 18px; margin: 12px 0 4px; }
+.pbar-row { display: grid; grid-template-columns: minmax(150px, 220px) 1fr 52px; gap: 14px; align-items: center; }
+.pbar-label b { display: block; font-size: 12.5px; color: var(--text-primary); }
+.pbar-label .rowsub { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.pbar-track { display: flex; flex-direction: column; gap: 5px; }
+.pbar-line { display: flex; align-items: center; gap: 8px; }
+.pbar-wrap { flex: 1; background: var(--grid); border-radius: 3px; height: 12px; overflow: hidden; }
+.pbar-bar { height: 100%; border-radius: 3px; min-width: 2px; }
+.pbar-bar.before { background: var(--ramp-light); }
+.pbar-bar.after { background: var(--ramp-dark); }
+.pbar-val { font-size: 11px; color: var(--text-secondary); font-variant-numeric: tabular-nums; width: 22px; text-align: right; }
+.pbar-delta { text-align: right; font-size: 13px; font-weight: 600; color: var(--series-3); white-space: nowrap; }
+#tip {
+  position: fixed; pointer-events: none; opacity: 0; transition: opacity .1s;
+  background: var(--surface-1); color: var(--text-primary);
+  border: 1px solid var(--border); border-radius: 7px;
+  padding: 7px 10px; font-size: 12px; max-width: 320px;
+  box-shadow: 0 6px 22px rgba(0,0,0,.18); z-index: 9;
+}
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .93em; }
+footer { color: var(--muted); font-size: 12.5px; margin-top: 40px; }
+</style></head>
+<body><div class="viz-root"><div class="wrap">
+
+<h1>Optimizer trajectories and paired outcomes</h1>
+<p class="lede">Figures for <i>What Makes a Command-Line Interface Agent-Friendly?</i>
+Every value is read from <code>experiments/runs/</code> at build time.</p>
+<p class="prov">botmap commit <code>3009509</code> · baseline
+60 attempts · generated 2026-08-31 by
+<code>tools/figures/build_figures.py</code> ·
+<a href="https://huggingface.co/datasets/nilenso/autoresearch" target="_blank"
+rel="noopener">dataset &amp; traces on Hugging Face &#8599;</a></p>
+
+
+<h2>Evaluator design</h2>
+<ul class="bullets">
+<li><b>Tool under test:</b> <code>botmap</code>, a CLI over Overture map data &mdash;
+multiple resource types, domain vocabulary, structured filters, ambiguous place
+names, large/expensive outputs.</li>
+<li><b>Task:</b> the agent gets a plain-English question and a shell, nothing else.
+Every command, output, token count, timing and final answer is recorded.</li>
+<li><b>Why the naive scorer (&quot;did it error?&quot;) was replaced:</b> it punished
+helpful error messages and rewarded silent zero-result answers &mdash; a clean exit
+code is not the same thing as a correct answer.</li>
+</ul>
+
+<h3>Failure taxonomy</h3>
+<ul class="bullets"><li><b>Class A &mdash; Hard / unguided failure:</b> usage error, raw traceback, no usable way forward <span class="pending">(attribution penalty 1.00)</span></li><li><b>Class B &mdash; Guided / recoverable failure:</b> command fails but names a usable next step <span class="pending">(attribution penalty 0.10)</span></li><li><b>Class C &mdash; Silent wrong:</b> command succeeds or looks plausible, but misleads the agent <span class="pending">(attribution penalty 1.00)</span></li><li><b>Class D &mdash; Degenerate route:</b> works, but via a needlessly broad or expensive path <span class="pending">(attribution penalty 0.45)</span></li><li><b>Class E &mdash; Environment / quota failure:</b> excluded entirely — never charged to the CLI <span class="pending">(not charged to the CLI)</span></li><li><b>Class F &mdash; Agent-side failure:</b> e.g. an ignored hint — recorded, not charged to the CLI <span class="pending">(not charged to the CLI)</span></li></ul>
+<p class="note">Class C is further split by subtype: <code>c-truncated</code> (a capped
+list read as complete), <code>c-unknown</code> (an unexplained empty result),
+<code>c-wrong-type</code> (right filter, wrong resource type), <code>c-wrong-column</code>
+(right filter, wrong field). Figure 0 below shows how the baseline's 111 failure
+instances split across these.</p>
+
+<h3>Scoring rubric &mdash; how the 100 points split</h3>
+<div class="card">
+<figure class="panel-fig"><figcaption><b>Top level</b>
+<span>correctness/recoverability vs. token efficiency vs. speed</span></figcaption>
+<svg viewBox="0 0 640 46" role="img" aria-label="Top-level score weights" class="panel wide"><rect x="4.0" y="6" width="377.7" height="32" rx="2" fill="var(--series-2)" class="dot" data-tip="Correctness &amp; recoverability: 60 of 100 (60%)"/><rect x="383.2" y="6" width="124.9" height="32" rx="2" fill="var(--series-1)" class="dot" data-tip="Token efficiency: 20 of 100 (20%)"/><rect x="509.6" y="6" width="124.9" height="32" rx="2" fill="var(--series-3)" class="dot" data-tip="Wall-clock time: 20 of 100 (20%)"/></svg>
+<div class="legend"><span><i class="sw dot-sw" style="background:var(--series-2)"></i>Correctness &amp; recoverability <span style="color:var(--muted)">(60%)</span></span><span><i class="sw dot-sw" style="background:var(--series-1)"></i>Token efficiency <span style="color:var(--muted)">(20%)</span></span><span><i class="sw dot-sw" style="background:var(--series-3)"></i>Wall-clock time <span style="color:var(--muted)">(20%)</span></span></div></figure>
+<figure class="panel-fig" style="margin-top:14px"><figcaption><b>Inside the 60 correctness points</b>
+<span>5 scoring components &mdash; not the failure classes directly</span></figcaption>
+<svg viewBox="0 0 640 46" role="img" aria-label="Correctness/recoverability sub-weights" class="panel wide"><rect x="4.0" y="6" width="209.2" height="32" rx="2" fill="var(--series-2)" class="dot" data-tip="Final outcome: 20 of 100 (20%)"/><rect x="214.7" y="6" width="209.2" height="32" rx="2" fill="var(--ramp-dark)" class="dot" data-tip="Self-recovery: 20 of 100 (20%)"/><rect x="425.3" y="6" width="124.9" height="32" rx="2" fill="var(--ramp-light)" class="dot" data-tip="Guidance quality: 12 of 100 (12%)"/><rect x="551.7" y="6" width="61.7" height="32" rx="2" fill="var(--series-1)" class="dot" data-tip="Route quality: 6 of 100 (6%)"/><rect x="614.9" y="6" width="19.6" height="32" rx="2" fill="var(--muted)" class="dot" data-tip="Attribution: 2 of 100 (2%)"/></svg>
+<div class="legend"><span><i class="sw dot-sw" style="background:var(--series-2)"></i>Final outcome <span style="color:var(--muted)">(20%)</span></span><span><i class="sw dot-sw" style="background:var(--ramp-dark)"></i>Self-recovery <span style="color:var(--muted)">(20%)</span></span><span><i class="sw dot-sw" style="background:var(--ramp-light)"></i>Guidance quality <span style="color:var(--muted)">(12%)</span></span><span><i class="sw dot-sw" style="background:var(--series-1)"></i>Route quality <span style="color:var(--muted)">(6%)</span></span><span><i class="sw dot-sw" style="background:var(--muted)"></i>Attribution <span style="color:var(--muted)">(2%)</span></span></div></figure>
+</div>
+<ul class="bullets">
+<li>60/20/20 means an agent-friendly CLI is graded mostly on <b>whether the agent could
+recover</b>, not on how fast or cheap the attempt was.</li>
+<li>The 60 correctness points split into 5 <i>scoring components</i>, not the 4 failure
+classes: <b>final outcome 20</b>, <b>self-recovery 20</b>, <b>guidance quality 12</b>,
+<b>route quality 6</b>, <b>attribution 2</b>.</li>
+<li>Failure-class severity (the A/B/C/D penalties above) only feeds into
+<b>attribution</b> &mdash; the smallest slice, 2 of 100 points. Class B is charged at
+just 0.10 because a guided failure is mostly forgiven once the agent uses the
+guidance to recover.</li>
+</ul>
+
+<h3>Guardrails</h3>
+<ul class="bullets">
+<li><b>Differential probes:</b> a suspicious zero (e.g.
+<code>--where subtype=bicycle_parking</code> &#8594; 0) is re-tested under a related
+filter before it is trusted as a real absence.</li>
+<li><b>Sabotage gate:</b> known-bad fixtures for every class/subtype must be caught
+before an optimizer run is allowed to start.</li>
+</ul>
+
+
+<details><summary>Terms used on this page (glossary)</summary>
+<div class="card"><table class="arms">
+<tr><th>Term</th><th>What it means</th></tr>
+<tr><td class="key">rubric score</td><td>A grade from 0 to 1 that the evaluator gives one
+attempt at one question. Higher is better. 60% of it is about whether the agent
+recovered from trouble, not just whether it got the answer.</td></tr>
+<tr><td class="key">held-out set</td><td>Five questions kept aside and never used to
+guide the optimizer, so we can check it learned something general rather than
+memorising the practice questions.</td></tr>
+<tr><td class="key">candidate</td><td>One proposed edit to the tool or its instructions.
+The optimizer invents these, then has to decide whether to pay to test each one.</td></tr>
+<tr><td class="key">minibatch</td><td>A cheap 3-question screening test. A candidate must
+beat its parent here before it earns a full, expensive test on all five held-out
+questions. This is why most iterations cost nothing and the line stays flat.</td></tr>
+<tr><td class="key">evaluation</td><td>One grading of one candidate. <b>The budget was
+60 evaluations</b> — not 60 iterations and not 60 questions. The runs actually spent
+61 to 63.</td></tr>
+<tr><td class="key">iteration</td><td>One round of: propose a change, screen it cheaply,
+maybe test it fully. A single iteration can burn several evaluations, which is why a
+budget of 60 evaluations bought only 8 or 9 iterations — that is the whole x-axis of
+Figure 1.</td></tr>
+<tr><td class="key">attempt</td><td>One agent trying one question once. Every question is
+run twice, so the baseline's <b>60 attempts are 30 questions run twice</b>, not 60
+questions.</td></tr>
+<tr><td class="key">call</td><td>One <code>botmap</code> command run inside an attempt.
+The baseline's 60 attempts contain about 500 calls, and it is calls that get
+classified.</td></tr>
+<tr><td class="key">failure instance</td><td>One call classified as a failure. <b>Figure 2
+counts these, not attempts.</b> One attempt can contain several, which is why Exp 4's
+25 instances live in only 13 attempts.</td></tr>
+<tr><td class="key">failure subtype</td><td>A named way the agent got it wrong — for example
+<code>c-truncated</code> means a list was silently cut short, so the agent read a
+partial answer as a complete one. Figure 2 counts these instead of scoring them.</td></tr>
+</table></div></details>
+
+<h2>Figure 0 · What the baseline looked like</h2>
+<p class="note">Everything on this page is measured against one baseline run of the
+untouched tool at commit <code>3009509</code>: 60 attempts, of which
+53 finished, costing about $15.50 and 5.4 hours of wall-clock time (paper §4). Those
+attempts contain 500 classified calls. The first bar splits every call; the
+second splits the silent-wrong ones, which is the category the study is really
+about. <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/00-baseline-agenteval/runs" target="_blank" rel="noopener">browse run &#8599;</a></p>
+<div class="card">
+<figure class="panel-fig"><figcaption><b>All 500 calls</b>
+<span>clean vs each failure class</span></figcaption>
+<svg viewBox="0 0 640 46" role="img" aria-label="Baseline calls by class" class="panel wide"><rect x="4.0" y="6" width="490.2" height="32" rx="2" fill="var(--ramp-light)" class="dot" data-tip="clean: 389 of 500 (78%)"/><rect x="495.7" y="6" width="68.0" height="32" rx="2" fill="var(--series-2)" class="dot" data-tip="C silent wrong: 55 of 500 (11%)"/><rect x="565.2" y="6" width="46.5" height="32" rx="2" fill="var(--series-1)" class="dot" data-tip="A hard fail: 38 of 500 (8%)"/><rect x="613.2" y="6" width="17.5" height="32" rx="2" fill="var(--series-3)" class="dot" data-tip="B guided fail: 15 of 500 (3%)"/><rect x="632.2" y="6" width="2.3" height="32" rx="2" fill="var(--muted)" class="dot" data-tip="D wasteful: 3 of 500 (1%)"/></svg>
+<div class="legend"><span><i class="sw dot-sw" style="background:var(--ramp-light)"></i>clean <span style="color:var(--muted)">(78%)</span></span><span><i class="sw dot-sw" style="background:var(--series-2)"></i>C silent wrong <span style="color:var(--muted)">(11%)</span></span><span><i class="sw dot-sw" style="background:var(--series-1)"></i>A hard fail <span style="color:var(--muted)">(8%)</span></span><span><i class="sw dot-sw" style="background:var(--series-3)"></i>B guided fail <span style="color:var(--muted)">(3%)</span></span><span><i class="sw dot-sw" style="background:var(--muted)"></i>D wasteful <span style="color:var(--muted)">(1%)</span></span></div></figure>
+<figure class="panel-fig" style="margin-top:14px"><figcaption><b>The 55 silent-wrong calls</b>
+<span>class C broken down by subtype</span></figcaption>
+<svg viewBox="0 0 640 46" role="img" aria-label="Class C failures by subtype" class="panel wide"><rect x="4.0" y="6" width="285.8" height="32" rx="2" fill="var(--series-2)" class="dot" data-tip="c-truncated: 25 of 55 (45%)"/><rect x="291.3" y="6" width="285.8" height="32" rx="2" fill="var(--muted)" class="dot" data-tip="c-unknown: 25 of 55 (45%)"/><rect x="578.5" y="6" width="33.0" height="32" rx="2" fill="var(--series-1)" class="dot" data-tip="c-wrong-type: 3 of 55 (5%)"/><rect x="613.0" y="6" width="21.5" height="32" rx="2" fill="var(--series-3)" class="dot" data-tip="c-wrong-column: 2 of 55 (4%)"/></svg>
+<div class="legend"><span><i class="sw dot-sw" style="background:var(--series-2)"></i>c-truncated <span style="color:var(--muted)">(45%)</span></span><span><i class="sw dot-sw" style="background:var(--muted)"></i>c-unknown <span style="color:var(--muted)">(45%)</span></span><span><i class="sw dot-sw" style="background:var(--series-1)"></i>c-wrong-type <span style="color:var(--muted)">(5%)</span></span><span><i class="sw dot-sw" style="background:var(--series-3)"></i>c-wrong-column <span style="color:var(--muted)">(4%)</span></span></div></figure>
+<table class="arms"><tr><th>Class</th><th>What it means</th><th>Calls</th><th>Share</th></tr><tr><td class="key">clean</td><td>The call did what was asked and told no lies.</td><td>389</td><td>77.8%</td></tr><tr><td class="key">C</td><td>Silent wrong — the command succeeded and misled the agent anyway. The dangerous one.</td><td>55</td><td>11.0%</td></tr><tr><td class="key">A</td><td>Hard failure — usage error or traceback, with no usable way forward.</td><td>38</td><td>7.6%</td></tr><tr><td class="key">B</td><td>Guided failure — the command failed but named a next step, so the agent could recover.</td><td>15</td><td>3.0%</td></tr><tr><td class="key">D</td><td>Wasteful route — the agent got there via a needlessly broad or expensive path.</td><td>3</td><td>0.6%</td></tr></table>
+</div>
+<ul class="bullets">
+<li><b>Half of everything that went wrong went wrong silently:</b> of 111
+failure instances, 55 are class C — the command succeeded and misled the
+agent anyway. A conventional &quot;did the command error?&quot; check would have
+missed every one of them.</li>
+<li>Two subtypes dominate, tied at 25 instances each:
+<code>c-truncated</code> (a capped list read as complete) and <code>c-unknown</code>
+(an empty result nobody could explain).</li>
+<li>Experiments 1 and 4 both target <code>c-truncated</code>. Nothing yet targets
+<code>c-unknown</code> — you cannot aim at a bucket labelled &quot;cause
+unknown&quot;.</li>
+</ul>
+
+<div class="callout">
+<b>Read this first: the measuring instrument wobbles more than anything it measured.</b>
+All three runs started from the untouched tool and were graded on the same five
+questions — the code that picks them, <code>questions.split()</code>, always picks
+the same ones. Those five were <code>hardware-near-bikepaths</code>, <code>pharmacies-monaco</code>, <code>street-canonical-form</code>, <code>unsupported-hours-and-ratings</code>, <code>which-admin-areas</code>.
+So the three starting scores <i>should</i> have been identical. They were not: they
+came out 0.5764 to 0.7637, a gap of <b>0.187</b> caused by nothing but the agent
+behaving differently each time.
+That gap is the size of the wobble. It is 31× bigger than Arm C's
++0.006 improvement and 12× bigger than the narrow tool run's
++0.016. It is like weighing yourself on a scale that swings by two kilos
+and announcing you lost sixty grams — the loss may be real, but this scale cannot
+see it. <b>Read the curves below for their shape, not their height.</b>
+</div>
+
+<h2>Figure 1 · GEPA loss trajectories</h2>
+<p class="note">Loss = 1 − score, lower is better. The line is the best-so-far loss —
+it can only go down or stay flat, since the optimizer never throws away its best
+work. Each dot is one candidate that earned a full test; most iterations cost
+nothing because most candidates never pass the cheap 3-question screen first.</p>
+<div class="legend"><span><i class="sw" style="background:var(--series-1)"></i>Arm B <span style="color:var(--muted)">(prompt)</span></span><span><i class="sw" style="background:var(--series-2)"></i>Arm C <span style="color:var(--muted)">(tool, 83 files)</span></span><span><i class="sw" style="background:var(--series-3)"></i>tool-narrow <span style="color:var(--muted)">(tool, 4 files)</span></span>
+<span><i class="sw dot-sw" style="background:var(--series-1)"></i>candidate that earned a full test</span></div>
+<div class="card">
+<figure class="panel-fig"><figcaption><b>Loss = 1 − score</b><span>lower is better</span></figcaption><svg viewBox="0 0 430 300" role="img" aria-label="Loss = 1 − score. lower is better" class="panel"><line x1="46" y1="262.0" x2="338" y2="262.0" stroke="var(--grid)" stroke-width="1"/><text x="38" y="265.5" text-anchor="end" class="tick">0.0</text><line x1="46" y1="212.4" x2="338" y2="212.4" stroke="var(--grid)" stroke-width="1"/><text x="38" y="215.9" text-anchor="end" class="tick">0.2</text><line x1="46" y1="162.8" x2="338" y2="162.8" stroke="var(--grid)" stroke-width="1"/><text x="38" y="166.3" text-anchor="end" class="tick">0.4</text><line x1="46" y1="113.2" x2="338" y2="113.2" stroke="var(--grid)" stroke-width="1"/><text x="38" y="116.7" text-anchor="end" class="tick">0.6</text><line x1="46" y1="63.6" x2="338" y2="63.6" stroke="var(--grid)" stroke-width="1"/><text x="38" y="67.1" text-anchor="end" class="tick">0.8</text><line x1="46" y1="14.0" x2="338" y2="14.0" stroke="var(--grid)" stroke-width="1"/><text x="38" y="17.5" text-anchor="end" class="tick">1.0</text><text x="46.0" y="278" text-anchor="middle" class="tick">0</text><text x="82.5" y="278" text-anchor="middle" class="tick">1</text><text x="119.0" y="278" text-anchor="middle" class="tick">2</text><text x="155.5" y="278" text-anchor="middle" class="tick">3</text><text x="192.0" y="278" text-anchor="middle" class="tick">4</text><text x="228.5" y="278" text-anchor="middle" class="tick">5</text><text x="265.0" y="278" text-anchor="middle" class="tick">6</text><text x="301.5" y="278" text-anchor="middle" class="tick">7</text><text x="338.0" y="278" text-anchor="middle" class="tick">8</text><line x1="46" y1="262.0" x2="338" y2="262.0" stroke="var(--axis)" stroke-width="1"/><text x="192" y="296" text-anchor="middle" class="axis-title">GEPA iteration</text><path d="M46.0,191.8 L82.5,191.8 L119.0,191.8 L155.5,191.8 L192.0,191.8 L228.5,191.8 L265.0,191.8 L301.5,191.8" fill="none" stroke="var(--series-1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="119.0" cy="166.7" r="4.5" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width="2" class="dot" data-tip="Arm B · iteration 2 · candidate 1 · scored 0.6159 on the five held-out questions · evaluated, not better than base"><title>Arm B · iteration 2 · candidate 1 · scored 0.6159 on the five held-out questions · evaluated, not better than base</title></circle><circle cx="228.5" cy="136.7" r="4.5" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width="2" class="dot" data-tip="Arm B · iteration 5 · candidate 2 · scored 0.4948 on the five held-out questions · evaluated, not better than base"><title>Arm B · iteration 5 · candidate 2 · scored 0.4948 on the five held-out questions · evaluated, not better than base</title></circle><circle cx="265.0" cy="143.5" r="4.5" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width="2" class="dot" data-tip="Arm B · iteration 6 · candidate 3 · scored 0.5221 on the five held-out questions · evaluated, not better than base"><title>Arm B · iteration 6 · candidate 3 · scored 0.5221 on the five held-out questions · evaluated, not better than base</title></circle><circle cx="301.5" cy="186.5" r="4.5" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width="2" class="dot" data-tip="Arm B · iteration 7 · candidate 4 · scored 0.6956 on the five held-out questions · evaluated, not better than base"><title>Arm B · iteration 7 · candidate 4 · scored 0.6956 on the five held-out questions · evaluated, not better than base</title></circle><path d="M46.0,157.0 L82.5,157.0 L119.0,157.0 L155.5,157.0 L192.0,157.0 L228.5,157.0 L265.0,158.4 L301.5,158.4" fill="none" stroke="var(--series-2)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="155.5" cy="133.0" r="4.5" fill="var(--series-2)" stroke="var(--surface-1)" stroke-width="2" class="dot" data-tip="Arm C · iteration 3 · candidate 1 · scored 0.4798 on the five held-out questions · evaluated, not better than base"><title>Arm C · iteration 3 · candidate 1 · scored 0.4798 on the five held-out questions · evaluated, not better than base</title></circle><circle cx="265.0" cy="158.4" r="4.5" fill="var(--series-2)" stroke="var(--surface-1)" stroke-width="2" class="dot" data-tip="Arm C · iteration 6 · candidate 2 · scored 0.5824 on the five held-out questions · kept as new best"><title>Arm C · iteration 6 · candidate 2 · scored 0.5824 on the five held-out questions · kept as new best</title></circle><circle cx="301.5" cy="140.3" r="4.5" fill="var(--series-2)" stroke="var(--surface-1)" stroke-width="2" class="dot" data-tip="Arm C · iteration 7 · candidate 3 · scored 0.5094 on the five held-out questions · evaluated, not better than base"><title>Arm C · iteration 7 · candidate 3 · scored 0.5094 on the five held-out questions · evaluated, not better than base</title></circle><path d="M46.0,203.4 L82.5,203.4 L119.0,203.4 L155.5,203.4 L192.0,203.4 L228.5,203.4 L265.0,203.4 L301.5,203.4 L338.0,207.4" fill="none" stroke="var(--series-3)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="228.5" cy="169.3" r="4.5" fill="var(--series-3)" stroke="var(--surface-1)" stroke-width="2" class="dot" data-tip="tool-narrow · iteration 5 · candidate 1 · scored 0.6264 on the five held-out questions · evaluated, not better than base"><title>tool-narrow · iteration 5 · candidate 1 · scored 0.6264 on the five held-out questions · evaluated, not better than base</title></circle><circle cx="338.0" cy="207.4" r="4.5" fill="var(--series-3)" stroke="var(--surface-1)" stroke-width="2" class="dot" data-tip="tool-narrow · iteration 8 · candidate 2 · scored 0.7798 on the five held-out questions · kept as new best"><title>tool-narrow · iteration 8 · candidate 2 · scored 0.7798 on the five held-out questions · kept as new best</title></circle><text x="308.5" y="161.9" class="endlabel" fill="var(--series-2)">Arm C</text><text x="308.5" y="195.3" class="endlabel" fill="var(--series-1)">Arm B</text><text x="345.0" y="210.9" class="endlabel" fill="var(--series-3)">tool-narrow</text></svg></figure>
+<table><tr><th>Run</th><th>Lever</th><th>Editable files</th><th>Candidates</th><th>Evaluations</th><th>Base</th><th>Final best</th><th>Delta</th><th>Trace</th></tr><tr><td class="key">Arm B</td><td>prompt</td><td>1</td><td>5</td><td>63</td><td>0.7171</td><td>0.7171</td><td>+0.0000</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-b-prompt-gepa/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">Arm C</td><td>tool, 83 files</td><td>83</td><td>4</td><td>62</td><td>0.5764</td><td>0.5824</td><td>+0.0060</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-c-full-repo-gepa/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">tool-narrow</td><td>tool, 4 files</td><td>4</td><td>3</td><td>61</td><td>0.7637</td><td>0.7798</td><td>+0.0161</td><td><span class="pending" title="not confirmed under HF arms/arm-c-full-repo-gepa/ — local: experiments/runs/tool-3009509-1787049966/">not confirmed</span></td></tr></table>
+<details><summary>Per-iteration detail (every proposal, kept or discarded)</summary>
+<table><tr><th>Run</th><th>Iter</th><th>Outcome</th><th>Parent</th><th>Candidate score</th><th>Best so far</th></tr><tr><td class="key">Arm B</td><td>0</td><td>base</td><td>—</td><td>0.7171</td><td>0.7171</td></tr><tr><td class="key">Arm B</td><td>1</td><td>rejected</td><td>0</td><td>—</td><td>0.7171</td></tr><tr><td class="key">Arm B</td><td>2</td><td>accepted</td><td>0</td><td>0.6159</td><td>0.7171</td></tr><tr><td class="key">Arm B</td><td>3</td><td>no proposal</td><td>0</td><td>—</td><td>0.7171</td></tr><tr><td class="key">Arm B</td><td>4</td><td>rejected</td><td>0</td><td>—</td><td>0.7171</td></tr><tr><td class="key">Arm B</td><td>5</td><td>accepted</td><td>1</td><td>0.4948</td><td>0.7171</td></tr><tr><td class="key">Arm B</td><td>6</td><td>accepted</td><td>0</td><td>0.5221</td><td>0.7171</td></tr><tr><td class="key">Arm B</td><td>7</td><td>accepted</td><td>0</td><td>0.6956</td><td>0.7171</td></tr><tr><td class="key">Arm C</td><td>0</td><td>base</td><td>—</td><td>0.5764</td><td>0.5764</td></tr><tr><td class="key">Arm C</td><td>1</td><td>rejected</td><td>0</td><td>—</td><td>0.5764</td></tr><tr><td class="key">Arm C</td><td>2</td><td>rejected</td><td>0</td><td>—</td><td>0.5764</td></tr><tr><td class="key">Arm C</td><td>3</td><td>accepted</td><td>0</td><td>0.4798</td><td>0.5764</td></tr><tr><td class="key">Arm C</td><td>4</td><td>rejected</td><td>0</td><td>—</td><td>0.5764</td></tr><tr><td class="key">Arm C</td><td>5</td><td>rejected</td><td>1</td><td>—</td><td>0.5764</td></tr><tr><td class="key">Arm C</td><td>6</td><td>accepted</td><td>0</td><td>0.5824</td><td>0.5824</td></tr><tr><td class="key">Arm C</td><td>7</td><td>accepted</td><td>0</td><td>0.5094</td><td>0.5824</td></tr><tr><td class="key">tool-narrow</td><td>0</td><td>base</td><td>—</td><td>0.7637</td><td>0.7637</td></tr><tr><td class="key">tool-narrow</td><td>1</td><td>rejected</td><td>0</td><td>—</td><td>0.7637</td></tr><tr><td class="key">tool-narrow</td><td>2</td><td>rejected</td><td>0</td><td>—</td><td>0.7637</td></tr><tr><td class="key">tool-narrow</td><td>3</td><td>rejected</td><td>0</td><td>—</td><td>0.7637</td></tr><tr><td class="key">tool-narrow</td><td>4</td><td>rejected</td><td>0</td><td>—</td><td>0.7637</td></tr><tr><td class="key">tool-narrow</td><td>5</td><td>accepted</td><td>0</td><td>0.6264</td><td>0.7637</td></tr><tr><td class="key">tool-narrow</td><td>6</td><td>rejected</td><td>1</td><td>—</td><td>0.7637</td></tr><tr><td class="key">tool-narrow</td><td>7</td><td>rejected</td><td>0</td><td>—</td><td>0.7637</td></tr><tr><td class="key">tool-narrow</td><td>8</td><td>accepted</td><td>0</td><td>0.7798</td><td>0.7798</td></tr></table></details>
+</div>
+<ul class="bullets">
+<li><b>Arm B</b> ended at its base — 5 candidates, none better.</li>
+<li><b>Arm C</b> beat its base by +0.0060; <b>tool-narrow</b> beat its base by +0.0161.</li>
+<li>On a rubric where the baseline noise band has never been established, a delta of
++0.006 is not a result; only the narrow 4-file tool run moved far enough
+(+0.016) to be worth a second look — and even that sits well inside the
+0.187 spread above.</li>
+</ul>
+
+<h2>Figure 2 · All experiments, at a glance</h2>
+<p class="note">Five arms plus the narrow 4-file GEPA run, each asking a different
+question about where agent-friendliness comes from. Result and trace/report links
+per experiment:</p>
+<div class="arm-cards"><div class="arm-card"><span class="tag">not plotted</span><h4>Arm A</h4><p>Can an agent run the whole research loop itself?</p><p><b>Could change:</b> 3 candidates, the whole 60-attempt bank each</p><p class="result">None accepted. Two enrichments timed out; one run halted at 37/60.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-a-loop-as-skill" target="_blank" rel="noopener">arm folder &#8599;</a></p></div><div class="arm-card"><span class="tag">Figure 1</span><h4>Arm B</h4><p>Can agent-friendliness be supplied as instructions?</p><p><b>Could change:</b> botmap/data/skill.md only</p><p class="result">+0.0000. Best held-out program was the base prompt; final patch empty.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-b-prompt-gepa" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-b-prompt-gepa/runs" target="_blank" rel="noopener">browse run &#8599;</a></p></div><div class="arm-card"><span class="tag">Figure 1</span><h4>Arm C</h4><p>Does seeing the whole codebase help it find the right file to fix?</p><p><b>Could change:</b> 83 tracked files, ~557k chars of context</p><p class="result">+0.0060. Best patch edited .gitignore and left &quot;new file needed&quot; notes.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-c-full-repo-gepa" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-c-full-repo-gepa/runs" target="_blank" rel="noopener">browse run &#8599;</a></p></div><div class="arm-card"><span class="tag">Figure 1</span><h4>tool-narrow</h4><p>Same idea as Arm C, but allowed to touch far less.</p><p><b>Could change:</b> 4 files</p><p class="result">+0.0161. The biggest gain any optimizer managed — still inside the wobble.</p><p><span class="pending" title="not confirmed under HF arms/arm-c-full-repo-gepa/ — local: experiments/runs/tool-3009509-1787049966/">not confirmed</span></p></div><div class="arm-card"><span class="tag">Figure 2, Exp 3</span><h4>Arm D</h4><p>Can the list of measured failures tell us what to try next?</p><p><b>Could change:</b> 1 tool-side hint (7 experiments proposed, 1 run here, 1 handed to Arm E)</p><p class="result">c-wrong-type 3 &#8594; 0 on a 4-attempt subset.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/03-wrong-type-hint-arm-d/arm-d" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/03-wrong-type-hint-arm-d/runs" target="_blank" rel="noopener">browse run &#8599;</a></p></div><div class="arm-card"><span class="tag">Figure 2, Exp 4</span><h4>Arm E</h4><p>What if we only test a change where it could possibly help?</p><p><b>Could change:</b> 1 new subcommand</p><p class="result">c-truncated 25 &#8594; 1 on the full 13-attempt affected subset.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-e-failure-routed-search" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-e-failure-routed-search/runs" target="_blank" rel="noopener">browse run &#8599;</a></p></div></div>
+
+<h3>Figure 2b · Paired before &#8594; after, on matched attempt subsets</h3>
+<p class="note">These four are not optimizers, so there is nothing to plot over time.
+Each is one change, made once, then measured as a count: how many times a specific
+failure happened before the change vs. after, recounted over exactly the same
+attempts the &quot;after&quot; run covered. Each row is scaled to its own count
+(not a shared axis), so Exp 2's 2 &#8594; 0 reads as clearly as Exp 4's 25 &#8594; 1
+&mdash; a shared scale would shrink the smaller experiments to invisible slivers.</p>
+<div class="legend">
+<span><i class="sw dot-sw" style="background:var(--ramp-light)"></i>before (baseline)</span>
+<span><i class="sw dot-sw" style="background:var(--ramp-dark)"></i>after (intervention)</span></div>
+<div class="card"><div class="pbars"><div class="pbar-row">
+<div class="pbar-label"><b>Exp 1  truncation warning</b><span class="rowsub">paired programme &middot; c-truncated &middot; n=6</span></div>
+<div class="pbar-track">
+<div class="pbar-line"><div class="pbar-wrap"><div class="pbar-bar before" style="width:100.0%"></div></div><span class="pbar-val">13</span></div>
+<div class="pbar-line"><div class="pbar-wrap"><div class="pbar-bar after" style="width:38.5%"></div></div><span class="pbar-val">5</span></div>
+</div>
+<div class="pbar-delta">&minus;62%</div>
+</div><div class="pbar-row">
+<div class="pbar-label"><b>Exp 2  wrong-column hint</b><span class="rowsub">paired programme &middot; c-wrong-column &middot; n=4</span></div>
+<div class="pbar-track">
+<div class="pbar-line"><div class="pbar-wrap"><div class="pbar-bar before" style="width:100.0%"></div></div><span class="pbar-val">2</span></div>
+<div class="pbar-line"><div class="pbar-wrap"><div class="pbar-bar after" style="width:0.0%"></div></div><span class="pbar-val">0</span></div>
+</div>
+<div class="pbar-delta">&minus;100%</div>
+</div><div class="pbar-row">
+<div class="pbar-label"><b>Exp 3  wrong-type hint</b><span class="rowsub">Arm D &middot; c-wrong-type &middot; n=4</span></div>
+<div class="pbar-track">
+<div class="pbar-line"><div class="pbar-wrap"><div class="pbar-bar before" style="width:100.0%"></div></div><span class="pbar-val">3</span></div>
+<div class="pbar-line"><div class="pbar-wrap"><div class="pbar-bar after" style="width:0.0%"></div></div><span class="pbar-val">0</span></div>
+</div>
+<div class="pbar-delta">&minus;100%</div>
+</div><div class="pbar-row">
+<div class="pbar-label"><b>Exp 4  categories --search</b><span class="rowsub">Arm E &middot; c-truncated &middot; n=13</span></div>
+<div class="pbar-track">
+<div class="pbar-line"><div class="pbar-wrap"><div class="pbar-bar before" style="width:100.0%"></div></div><span class="pbar-val">25</span></div>
+<div class="pbar-line"><div class="pbar-wrap"><div class="pbar-bar after" style="width:4.0%"></div></div><span class="pbar-val">1</span></div>
+</div>
+<div class="pbar-delta">&minus;96%</div>
+</div></div>
+<table><tr><th>Experiment</th><th>Arm</th><th>Subtype</th><th>Attempts</th><th>Before</th><th>After</th><th>Change</th><th>Trace</th></tr><tr><td class="key">Exp 1  truncation warning</td><td>paired programme</td><td>c-truncated</td><td>6</td><td>13</td><td>5</td><td>-8</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/01-categories-truncation-warning/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">Exp 2  wrong-column hint</td><td>paired programme</td><td>c-wrong-column</td><td>4</td><td>2</td><td>0</td><td>-2</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/02-count-wrong-column-hint/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">Exp 3  wrong-type hint</td><td>Arm D</td><td>c-wrong-type</td><td>4</td><td>3</td><td>0</td><td>-3</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/03-wrong-type-hint-arm-d/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">Exp 4  categories --search</td><td>Arm E</td><td>c-truncated</td><td>13</td><td>25</td><td>1</td><td>-24</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-e-failure-routed-search/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr></table></div>
+<ul class="bullets">
+<li>Experiments 2 and 3 each moved a handful of failures across only four
+attempts — points the right way, but small enough to be luck.</li>
+<li>Experiment 4 is the one to trust: it covered every affected attempt and all of
+them finished.</li>
+</ul>
+
+
+<h2>Reading across the arms</h2>
+<p class="note">Figure 1 asks &quot;did the score go up?&quot; Figure 2 asks &quot;did
+this specific failure stop happening?&quot; The second question got useful answers;
+the first mostly did not &mdash; that gap is the real finding.</p>
+
+<h3>Why the optimizer arms barely moved</h3>
+<ul class="bullets">
+<li><b>The ruler was coarser than what it measured:</b> three runs of the unchanged
+tool scored 0.187 apart &mdash; bigger than every optimizer gain on this page.</li>
+<li><b>The budget bought very few real looks:</b> 186 evaluations across all
+three runs produced only 9 fully-tested candidates, and 7
+of those scored worse than the base they started from. Arm C had ~0.7
+evaluations per editable file &mdash; not a search, a coin toss.</li>
+<li><b>A bigger edit surface made search worse, not better:</b> Arm C
+(83 files) spent its best patch on <code>.gitignore</code>;
+the narrow run (4 files) produced the biggest optimizer
+gain on the page (+0.0161).</li>
+<li><b>Optimizers spotted the problem but couldn't build the fix:</b> both GEPA arms
+noticed agents struggling to discover category names, but turned it into longer
+instructions (Arm B) or an unwritten <code>suggest.py</code> note (Arm C). Arm E
+turned the same signal into one working command,
+<code>botmap categories --search TERM</code>, moving its target failure
+25 &#8594; 1.</li>
+</ul>
+
+<h3>What actually improved</h3>
+<ul class="bullets">
+<li><b>Exp 1 &mdash; truncation warning:</b> 13 &#8594; 5
+on 6 attempts.</li>
+<li><b>Exp 2 &mdash; wrong-column hint:</b> 2 &#8594; 0
+on 4 attempts.</li>
+<li><b>Exp 3 &mdash; wrong-type hint (Arm D):</b> 3 &#8594; 0
+on 4 attempts, only 2/4 completed &mdash; provisional.</li>
+<li><b>Exp 4 &mdash; <code>categories --search</code> (Arm E):</b>
+25 &#8594; 1 across every affected attempt &mdash; the
+strongest, most trustworthy result in the study.</li>
+<li><b>tool-narrow (GEPA, 4 files):</b> +0.0161 &mdash; the only
+optimizer gain, and it still sits inside the 0.187 noise band.</li>
+</ul>
+
+<h3>What went wrong this round</h3>
+<ul class="bullets">
+<li><b>The wobble was never measured directly</b> &mdash; the 0.187 spread
+comes from 3 accidental data points, not a designed noise run. A 60-attempt repeat
+run exists but recorded failure <i>kinds</i>, not the score each time.</li>
+<li><b>The optimizer briefly could edit its own exam</b> &mdash; an early full-repo
+run included evaluator files in the editable set and had to be thrown out.</li>
+<li><b>Arm A screened on everything instead of what mattered</b> &mdash; all 60
+attempts per candidate; two of three enrichments timed out, one run halted at 37/60.</li>
+<li><b>The evaluator itself had a bug for part of the run</b> &mdash; US state codes
+and country codes were confused (<code>Cambridge, MA</code> vs.
+<code>Malta, MT</code>); fixing it changed the failure distribution.</li>
+<li><b>Some results shipped on samples too small to trust:</b> Exp 3 moved
+3 &#8594; 0 on 4 attempts, only 2 finished.</li>
+</ul>
+
+<h3>What to change in the next run</h3>
+<ul class="bullets">
+<li><b>Measure the wobble first:</b> run the unchanged tool 10&ndash;20&times; before
+spending budget on candidates; require gains to clear ~2&times; the standard deviation.</li>
+<li><b>Pin the map data</b> &mdash; every run so far logged
+<code>map data: NOT pinned</code>.</li>
+<li><b>Fewer files, more looks:</b> the 4-file run beat the 83-file run.</li>
+<li><b>Route by failure class from the start</b> &mdash; test a candidate only on
+the attempts it targets, the way Arm E did.</li>
+<li><b>Raise the minimum sample size</b> &mdash; 4 attempts cannot separate a fix
+from a coincidence.</li>
+<li><b>Mine rejected optimizer proposals deliberately</b> &mdash; the discards
+(zero-result diagnostics, place-name normalisation, a suggestions module) were as
+valuable as the accepted patches.</li>
+<li><b>Fix instrumentation debt first:</b> 25 of 55 silent-wrong
+instances (45%) are still unexplained
+(<code>c-unknown</code>) &mdash; nothing can target that bucket until better probes
+split it up.</li>
+</ul>
+
+<h3>What this page does not prove</h3>
+<ul class="bullets">
+<li>Exp 2 and Exp 3 rest on 4 attempts each (Exp 3: only 2 finished) &mdash;
+directionally right, not yet trustworthy alone.</li>
+<li>Only Exp 1 and Exp 4 have enough attempts to argue from.</li>
+<li>Nothing has been re-run across the full 60-attempt bank &mdash; every result is
+&quot;this fixed this failure on these attempts&quot;, not &quot;the tool is better
+now&quot;.</li>
+<li>5 of the 7 experiments Arm D proposed were never run.</li>
+</ul>
+
+
+<h2>Traces &amp; runs</h2>
+<p class="note">Every run referenced on this page, in one place. &quot;browse
+run&quot; opens that run's directory on the
+<a href="https://huggingface.co/datasets/nilenso/autoresearch" target="_blank"
+rel="noopener">Hugging Face dataset</a> (confirmed 2026-08-31: it is organized
+under <code>agent-friendly-cli/experiments/&lt;NN-name&gt;/runs/</code> and
+<code>agent-friendly-cli/arms/&lt;arm&gt;/runs/</code>, not a flat mirror of this
+repo's own paths); &quot;not confirmed&quot; means the run's exact folder wasn't
+verified rather than guessed at.</p>
+<div class="card"><table>
+<tr><th>Run</th><th>Trace</th></tr>
+<tr><td class="key">agenteval-measurement-3009509</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/00-baseline-agenteval/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">agenteval-measurement-3009509-retry-incomplete</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/00-baseline-agenteval/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">after-categories-truncation-hint-00bff1a</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/01-categories-truncation-warning/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">after-count-wrong-column-hint-7c794ff</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/02-count-wrong-column-hint/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">after-wrong-type-hint-tool-9ba1187</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/03-wrong-type-hint-arm-d/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">prompt-3009509-1787544952</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-b-prompt-gepa/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">tool-3009509-1787550419</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-c-full-repo-gepa/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">arm-e-categories-search-c-truncated-4a197c3</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-e-failure-routed-search/runs" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">arm-a-new-evaluator-count-zero-hint-9a2496d</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-a-loop-as-skill" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">arm-a-new-evaluator-skill-bus-station-6c04003</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-a-loop-as-skill" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">arm-a-new-evaluator-count-flag-parity-05ef72c</td><td><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-a-loop-as-skill" target="_blank" rel="noopener">browse run &#8599;</a></td></tr><tr><td class="key">tool-3009509-1787049966</td><td><span class="pending" title="not confirmed under HF arms/arm-c-full-repo-gepa/ — local: experiments/runs/tool-3009509-1787049966/">not confirmed</span></td></tr>
+</table>
+<p class="note" style="margin-top:8px">Arm folders: <b>Arm A</b> <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-a-loop-as-skill" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <b>Arm B</b> <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-b-prompt-gepa" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <b>Arm C</b> <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-c-full-repo-gepa" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <b>Arm D</b> <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/03-wrong-type-hint-arm-d/arm-d" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <b>Arm E</b> <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-e-failure-routed-search" target="_blank" rel="noopener">arm folder &#8599;</a>.</p>
+</div>
+
+<footer>Rebuild with <code>python3 tools/figures/build_figures.py</code>.
+Underlying values in <code>docs/figures/figure-data.json</code>. Raw traces and arm
+reports: <a href="https://huggingface.co/datasets/nilenso/autoresearch"
+target="_blank" rel="noopener">huggingface.co/datasets/nilenso/autoresearch</a>.</footer>
+
+</div></div><div id="tip"></div><script>
+(function () {
+  var tip = document.getElementById('tip');
+  document.addEventListener('mouseover', function (e) {
+    var t = e.target.closest('[data-tip]');
+    if (!t) return;
+    tip.textContent = t.getAttribute('data-tip');
+    tip.style.opacity = '1';
+  });
+  document.addEventListener('mousemove', function (e) {
+    if (tip.style.opacity !== '1') return;
+    var r = tip.getBoundingClientRect();
+    var x = Math.min(e.clientX + 14, window.innerWidth - r.width - 8);
+    var y = Math.max(e.clientY - r.height - 12, 8);
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  });
+  document.addEventListener('mouseout', function (e) {
+    if (e.target.closest('[data-tip]')) tip.style.opacity = '0';
+  });
+})();
+</script></body></html>
