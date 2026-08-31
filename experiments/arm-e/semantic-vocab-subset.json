@@ -1,0 +1,625 @@
+{
+  "source": "experiments/arm-e/failure-subsets.json (subset: c-truncated)",
+  "note": "Semantic/regional vocabulary probe for Arm E. Five questions whose wording differs from Overture's category vocabulary, one repeat each, to keep the paid run small.",
+  "subsets": {
+    "semantic-vocab": {
+      "priority": 1,
+      "candidate": "cand/categories-search-semantic-skill @ f93a7d2",
+      "principle": "Let the model map question wording to CLI-exposed local vocabulary via repeated --search probes; no synonym map in code.",
+      "acceptance_metric": "c-truncated / c-unknown decrease on matched attempts, with agents visibly issuing multiple --search terms.",
+      "baseline_attempts_with_failure": 5,
+      "selected_attempts": [
+        {
+          "attempt": "asian-restaurants-rollup__r1",
+          "question_id": "asian-restaurants-rollup",
+          "repeat": 1,
+          "botmap_calls": 25,
+          "failure_counts": {
+            "c-truncated": 2,
+            "c-unknown": 6
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "100"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 100; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "400"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 400; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 15,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=indonesian_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 17,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=mongolian_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 19,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=himalayan_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 20,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=nepalese_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 22,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bangladeshi_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 24,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=hibachi_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            }
+          ]
+        },
+        {
+          "attempt": "basic-category-rollup__r1",
+          "question_id": "basic-category-rollup",
+          "repeat": 1,
+          "botmap_calls": 8,
+          "failure_counts": {
+            "c-truncated": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            }
+          ]
+        },
+        {
+          "attempt": "bike-parking-coverage__r1",
+          "question_id": "bike-parking-coverage",
+          "repeat": 1,
+          "botmap_calls": 18,
+          "failure_counts": {
+            "B": 2,
+            "c-truncated": 3,
+            "c-wrong-column": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-column",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "subtype=bicycle_parking"
+              ],
+              "evidence": "c-wrong-column: subtype=bicycle_parking returned 0; class=bicycle_parking returned 1844. The value exists in a different column."
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-cambridge__r1",
+          "question_id": "bus-stops-cambridge",
+          "repeat": 1,
+          "botmap_calls": 14,
+          "failure_counts": {
+            "A": 2,
+            "B": 1,
+            "c-truncated": 3,
+            "c-unknown": 3
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "basic_category=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "taxonomy.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 11,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.alternate=bus_stop"
+              ],
+              "evidence": "Traceback (most recent call last):"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 12,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "taxonomy.alternates=bus_stop"
+              ],
+              "evidence": "Traceback (most recent call last):"
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-with-coffee__r1",
+          "question_id": "bus-stops-with-coffee",
+          "repeat": 1,
+          "botmap_calls": 22,
+          "failure_counts": {
+            "A": 3,
+            "B": 2,
+            "c-truncated": 2,
+            "c-unknown": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "100"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 100; raised limit returned 618 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 618 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--bbox",
+                "-74.05,40.55,-73.7,40.9",
+                "--where",
+                "categories.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 13,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "50"
+              ],
+              "evidence": "Usage: python -m botmap categories [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 16,
+              "argv": [
+                "download",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--where",
+                "subtype=transit",
+                "--where",
+                "class=bus_stop",
+                "-f",
+                "geojsonseq",
+                "-o",
+                "wburg_busstops.jsonl"
+              ],
+              "evidence": "Usage: python -m botmap download [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 19,
+              "argv": [
+                "download",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--where",
+                "class=bus_stop",
+                "-f",
+                "geojsonseq",
+                "-o",
+                "wburg_busstops.jsonl"
+              ],
+              "evidence": "Usage: python -m botmap download [OPTIONS]"
+            }
+          ]
+        }
+      ],
+      "ordering_rationale": "Most semantic/regional-vocabulary-dependent first, so the highest-signal attempts land even if the run is stopped early. asian-restaurants-rollup leads because the control at 4a197c3 issued only one --search term ('restaurant') and so has the most headroom."
+    }
+  }
+}

@@ -1,0 +1,31 @@
+subset=c-truncated
+attempts=13
+botmap_repo=/Users/priyangapkini/workspace/ar-search/botmap
+run_dir=experiments/runs/arm-e-categories-search-c-truncated-4a197c3
+- bike-parking-coverage__r1
+- bus-stops-cambridge__r1
+- asian-restaurants-rollup__r1
+- basic-category-rollup__r1
+- basic-category-rollup__r2
+- beach-accessibility-malta__r1
+- bike-parking-coverage__r2
+- bus-stops-with-coffee__r1
+- bus-stops-with-coffee__r2
+- ev-charging-gap__r2
+- asian-restaurants-rollup__r2
+- bus-stops-cambridge__r2
+- ev-charging-gap__r1
+[arm-e] 1/13 bike-parking-coverage__r1
+[arm-e] 2/13 bus-stops-cambridge__r1
+[arm-e] 3/13 asian-restaurants-rollup__r1
+[arm-e] 4/13 basic-category-rollup__r1
+[arm-e] 5/13 basic-category-rollup__r2
+[arm-e] 6/13 beach-accessibility-malta__r1
+[arm-e] 7/13 bike-parking-coverage__r2
+[arm-e] 8/13 bus-stops-with-coffee__r1
+[arm-e] 9/13 bus-stops-with-coffee__r2
+[arm-e] 10/13 ev-charging-gap__r2
+[arm-e] 11/13 asian-restaurants-rollup__r2
+[arm-e] 12/13 bus-stops-cambridge__r2
+[arm-e] 13/13 ev-charging-gap__r1
+[arm-e] done: experiments/runs/arm-e-categories-search-c-truncated-4a197c3

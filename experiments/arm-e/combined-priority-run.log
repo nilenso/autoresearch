@@ -1,0 +1,25 @@
+subset=combined-accepted-patches-priority
+attempts=14
+botmap_repo=/Users/priyangapkini/workspace/ar-e/botmap
+run_dir=/Users/priyangapkini/nilenso/ai-playground/autoresearch/experiments/runs/arm-e-combined-combined-accepted-patches-priority-6a3015d
+- beach-accessibility-malta__r1
+- bike-parking-coverage__r1
+- bus-stops-cambridge__r1
+- asian-restaurants-rollup__r1
+- basic-category-rollup__r1
+- basic-category-rollup__r2
+- bike-parking-coverage__r2
+- bus-stops-with-coffee__r1
+- bus-stops-with-coffee__r2
+- ev-charging-gap__r2
+- residential-share-cambridge__r2
+- asian-restaurants-rollup__r2
+- bus-stops-cambridge__r2
+- ev-charging-gap__r1
+[arm-e] 1/14 beach-accessibility-malta__r1
+[arm-e] 2/14 bike-parking-coverage__r1
+[arm-e] 3/14 bus-stops-cambridge__r1
+[arm-e] 4/14 asian-restaurants-rollup__r1
+[arm-e] 5/14 basic-category-rollup__r1
+[arm-e] 6/14 basic-category-rollup__r2
+[arm-e] 7/14 bike-parking-coverage__r2

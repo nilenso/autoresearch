@@ -1,0 +1,15 @@
+subset=semantic-vocab
+attempts=5
+botmap_repo=/Users/priyangapkini/workspace/ar-search-semantic/botmap
+run_dir=experiments/runs/arm-e-semantic-vocab-f93a7d2
+- asian-restaurants-rollup__r1
+- basic-category-rollup__r1
+- bike-parking-coverage__r1
+- bus-stops-cambridge__r1
+- bus-stops-with-coffee__r1
+[arm-e] 1/5 asian-restaurants-rollup__r1
+[arm-e] 2/5 basic-category-rollup__r1
+[arm-e] 3/5 bike-parking-coverage__r1
+[arm-e] 4/5 bus-stops-cambridge__r1
+[arm-e] 5/5 bus-stops-with-coffee__r1
+[arm-e] done: experiments/runs/arm-e-semantic-vocab-f93a7d2

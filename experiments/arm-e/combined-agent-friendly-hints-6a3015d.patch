@@ -1,0 +1,152 @@
+diff --git a/botmap/cli.py b/botmap/cli.py
+index f72a565..da22f2b 100644
+--- a/botmap/cli.py
++++ b/botmap/cli.py
+@@ -8,6 +8,7 @@ in a specified bounding box in a few different file formats.
+ 
+ import importlib.metadata
+ import os
++import shlex
+ import sys
+ import uuid
+ from datetime import datetime, timezone
+@@ -55,6 +56,59 @@ def _safe_count(type_, **kw):
+         raise click.UsageError(str(e))
+ 
+ 
++def _count_or_none(type_, **kw):
++    """Return a count for diagnostic probes, or None when the filter cannot apply."""
++    try:
++        return count_rows(type_, **kw)
++    except (OSError, ValueError):
++        return None
++
++
++def _shell_command(parts):
++    """Format a copy/paste-safe shell command."""
++    return " ".join(shlex.quote(str(part)) for part in parts)
++
++
++def _format_count_retry(type_, bbox, in_place, where_exprs, json_mode):
++    """Build the exact count command that retries the same filters under another type."""
++    parts = ["botmap"]
++    if json_mode:
++        parts.append("--json")
++    parts.extend(["count", "-t", type_])
++    if in_place is not None:
++        parts.extend(["--in", in_place])
++    elif bbox is not None:
++        parts.extend(["--bbox", ",".join(str(value) for value in bbox)])
++    for expr in where_exprs or []:
++        parts.extend(["--where", expr])
++    return _shell_command(parts)
++
++
++def _same_filter_other_type_hint(type_, bbox, in_place, release, where_filters, where_exprs, json_mode):
++    """Name another feature type when a zero count is explained by type mismatch."""
++    if not where_filters:
++        return None
++
++    for candidate_type in sorted(t for t in get_all_overture_types() if t != type_):
++        n = _count_or_none(
++            candidate_type,
++            bbox=bbox,
++            release=release,
++            stac=True,
++            where_filters=where_filters,
++        )
++        if not n:
++            continue
++        filters = ", ".join(where_exprs)
++        command = _format_count_retry(candidate_type, bbox, in_place, where_exprs, json_mode)
++        return (
++            f"[botmap] 0 rows for -t {type_} with {filters}, but "
++            f"-t {candidate_type} returns {n:,}. Try `{command}` before "
++            f"concluding none exist."
++        )
++    return None
++
++
+ def _parse_latlon(latlon: str) -> tuple[float, float]:
+     """Parse 'LAT,LON' string into (lat, lon) floats."""
+     parts = [p.strip() for p in latlon.split(",")]
+@@ -773,6 +827,30 @@ def boundary(ctx, query):
+     _emit_division_geometry(ctx, division)
+ 
+ 
++def _maybe_hint_wrong_column(type_, bbox, release, where_filters):
++    """If a zero count used class/subtype in the wrong field, name the fix."""
++    swaps = {"subtype": "class", "class": "subtype"}
++    for f in where_filters:
++        if f.op != "=" or f.key not in swaps:
++            continue
++        other_key = swaps[f.key]
++        try:
++            other_filter = parse_where_expr(f"{other_key}={f.value}")
++            other_count = _safe_count(
++                type_, bbox=bbox, release=release, stac=True, where_filters=[other_filter]
++            )
++        except Exception:
++            continue
++        if other_count > 0:
++            click.echo(
++                f"[botmap] 0 rows for {f.key}={f.value!r}, but "
++                f"{other_key}={f.value!r} returns {other_count:,}. "
++                f"Try `--where {other_key}={f.value}` before concluding none exist.",
++                err=True,
++            )
++            return
++
++
+ @cli.command()
+ @click.option("-t", "--type", "type_",
+               type=click.Choice(get_all_overture_types()), required=True)
+@@ -800,6 +878,15 @@ def count(ctx, type_, bbox, in_place, where_exprs, release):
+     n = _safe_count(
+         type_, bbox=bbox, release=release, stac=True, where_filters=where_filters,
+     )
++    if n == 0:
++        hint = _same_filter_other_type_hint(
++            type_, bbox, in_place, release, where_filters, where_exprs, ctx.obj.get("json")
++        )
++        if hint:
++            click.secho(hint, fg="yellow", err=True)
++
++    if n == 0 and where_filters:
++        _maybe_hint_wrong_column(type_, bbox, release, where_filters)
+ 
+     if ctx.obj.get("json"):
+         _emit_json(ctx, {
+@@ -1014,9 +1101,18 @@ def categories(ctx, type_, bbox, in_place, top, release):
+                 continue
+             counts[val] = counts.get(val, 0) + item["counts"]
+ 
+-    ranked = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)[:top]
++    all_ranked = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)
++    ranked = all_ranked[:top]
+     payload = [{"value": v, "count": c} for v, c in ranked]
+ 
++    if len(all_ranked) > top:
++        click.echo(
++            f"[botmap] Showing top {top} of {len(all_ranked)} categories. "
++            f"This list is truncated; rerun with `--top {len(all_ranked)}` "
++            f"or a larger --top before concluding a category is absent.",
++            err=True,
++        )
++
+     if ctx.obj.get("json"):
+         _emit_json(ctx, payload)
+         return
+diff --git a/tests/test_cli_categories.py b/tests/test_cli_categories.py
+index 770c3a9..e15f1c2 100644
+--- a/tests/test_cli_categories.py
++++ b/tests/test_cli_categories.py
+@@ -45,7 +45,7 @@ def test_categories_returns_top_values(monkeypatch):
+         "--bbox", "-71.1,42.3,-71.0,42.4", "--top", "3",
+     ])
+     assert result.exit_code == 0, result.output
+-    data = json.loads(result.output)
++    data = json.loads(result.stdout)
+     assert data == [
+         {"value": "restaurant", "count": 10},
+         {"value": "cafe", "count": 7},

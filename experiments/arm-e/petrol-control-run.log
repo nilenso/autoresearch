@@ -1,0 +1,7 @@
+subset=petrol-control
+attempts=1
+botmap_repo=/Users/priyangapkini/workspace/ar-search/botmap
+run_dir=experiments/runs/arm-e-petrol-control-4a197c3
+- petrol-pumps-cambridge__r1
+[arm-e] 1/1 petrol-pumps-cambridge__r1
+[arm-e] done: experiments/runs/arm-e-petrol-control-4a197c3

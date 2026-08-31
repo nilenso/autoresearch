@@ -1,0 +1,131 @@
+{
+  "control": {
+    "label": "control 4a197c3",
+    "run_dir": "/Users/priyangapkini/nilenso/ai-playground/autoresearch/experiments/runs/arm-e-categories-search-c-truncated-4a197c3",
+    "attempts": {
+      "basic-category-rollup__r1": {
+        "terms": [
+          "pharmacy",
+          "drug"
+        ],
+        "calls": 8,
+        "failures": {}
+      },
+      "bus-stops-cambridge__r1": {
+        "terms": [
+          "bus",
+          "stop",
+          "transit",
+          "station"
+        ],
+        "calls": 7,
+        "failures": {
+          "c-vocabulary": 1
+        }
+      },
+      "bus-stops-with-coffee__r1": {
+        "terms": [
+          "bus",
+          "transit",
+          "coffee",
+          "stop",
+          "station",
+          "platform"
+        ],
+        "calls": 21,
+        "failures": {
+          "c-truncated": 1,
+          "A": 4
+        }
+      },
+      "bike-parking-coverage__r1": {
+        "terms": [
+          "bike",
+          "bicycle"
+        ],
+        "calls": 13,
+        "failures": {
+          "B": 1,
+          "c-unknown": 1,
+          "A": 1
+        }
+      },
+      "asian-restaurants-rollup__r1": {
+        "terms": [
+          "restaurant"
+        ],
+        "calls": 3,
+        "failures": {}
+      }
+    },
+    "summary": {
+      "attempts_done": 13,
+      "total": 13,
+      "completed": 13,
+      "ok": 13,
+      "botmap_calls": 231,
+      "cost_usd": 3.771603,
+      "minutes": 65.4,
+      "finished": "2026-08-31T11:37:27.745723+00:00"
+    }
+  },
+  "treatment": {
+    "label": "treatment f93a7d2",
+    "run_dir": "/Users/priyangapkini/nilenso/ai-playground/autoresearch/experiments/runs/arm-e-semantic-vocab-f93a7d2",
+    "attempts": {
+      "basic-category-rollup__r1": {
+        "terms": [],
+        "calls": 0,
+        "failures": {}
+      },
+      "bus-stops-cambridge__r1": {
+        "terms": [],
+        "calls": 0,
+        "failures": {}
+      },
+      "bus-stops-with-coffee__r1": {
+        "terms": [
+          "bus",
+          "stop",
+          "station",
+          "transit",
+          "bus_stop",
+          "halt",
+          "bus",
+          "platform",
+          "shelter",
+          "mta",
+          "transport",
+          "public_transport"
+        ],
+        "calls": 25,
+        "failures": {
+          "B": 1,
+          "A": 2
+        }
+      },
+      "bike-parking-coverage__r1": {
+        "terms": [],
+        "calls": 0,
+        "failures": {}
+      },
+      "asian-restaurants-rollup__r1": {
+        "terms": [],
+        "calls": 20,
+        "failures": {
+          "c-truncated": 1
+        }
+      }
+    },
+    "summary": {
+      "attempts_done": 5,
+      "total": 5,
+      "completed": 5,
+      "ok": 5,
+      "botmap_calls": 45,
+      "cost_usd": 3.364981,
+      "minutes": 21.1,
+      "finished": "2026-08-31T11:37:56.553853+00:00"
+    }
+  }
+}

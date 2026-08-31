@@ -1,0 +1,15 @@
+{
+  "note": "Control arm for the new petrol question, which has no baseline.",
+  "subsets": {
+    "petrol-control": {
+      "priority": 1,
+      "selected_attempts": [
+        {
+          "attempt": "petrol-pumps-cambridge__r1",
+          "question_id": "petrol-pumps-cambridge",
+          "repeat": 1
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+subset=semantic-vocab-repairs
+attempts=4
+botmap_repo=/Users/priyangapkini/workspace/ar-search-semantic/botmap
+run_dir=experiments/runs/arm-e-semantic-vocab-repairs-f93a7d2
+- bus-stops-cambridge__r2
+- basic-category-rollup__r2
+- bike-parking-coverage__r2
+- petrol-pumps-cambridge__r1
+[arm-e] 1/4 bus-stops-cambridge__r2
+[arm-e] 2/4 basic-category-rollup__r2
+[arm-e] 3/4 bike-parking-coverage__r2
+[arm-e] 4/4 petrol-pumps-cambridge__r1
+[arm-e] done: experiments/runs/arm-e-semantic-vocab-repairs-f93a7d2

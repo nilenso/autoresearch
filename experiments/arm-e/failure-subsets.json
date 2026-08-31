@@ -1,0 +1,5996 @@
+{
+  "source": "/Users/priyangapkini/nilenso/ai-playground/autoresearch/experiments/runs/agenteval-measurement-3009509/agenteval-summary-with-retries.json",
+  "generated_at": "2026-08-31T10:01:32.539798+00:00",
+  "baseline_records": 60,
+  "baseline_attempts_with_failures": 34,
+  "baseline_class_counts": {
+    "clean": 389,
+    "C": 55,
+    "B": 15,
+    "A": 38,
+    "D": 3
+  },
+  "baseline_subtype_counts": {
+    "c-truncated": 25,
+    "c-unknown": 25,
+    "c-wrong-type": 3,
+    "c-wrong-column": 2
+  },
+  "subsets": {
+    "c-truncated": {
+      "priority": 1,
+      "candidate": "cand/categories-truncation-hint @ 00bff1a",
+      "principle": "Make completeness explicit; never silently truncate discovery output.",
+      "acceptance_metric": "Target subtype decreases on matched attempts without new broad Class C or timeout regression.",
+      "baseline_attempts_with_failure": 13,
+      "baseline_failure_count": 25,
+      "selected_attempts": [
+        {
+          "attempt": "bike-parking-coverage__r1",
+          "question_id": "bike-parking-coverage",
+          "repeat": 1,
+          "botmap_calls": 18,
+          "failure_counts": {
+            "B": 2,
+            "c-truncated": 3,
+            "c-wrong-column": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-column",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "subtype=bicycle_parking"
+              ],
+              "evidence": "c-wrong-column: subtype=bicycle_parking returned 0; class=bicycle_parking returned 1844. The value exists in a different column."
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-cambridge__r1",
+          "question_id": "bus-stops-cambridge",
+          "repeat": 1,
+          "botmap_calls": 14,
+          "failure_counts": {
+            "A": 2,
+            "B": 1,
+            "c-truncated": 3,
+            "c-unknown": 3
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "basic_category=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "taxonomy.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 11,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.alternate=bus_stop"
+              ],
+              "evidence": "Traceback (most recent call last):"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 12,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "taxonomy.alternates=bus_stop"
+              ],
+              "evidence": "Traceback (most recent call last):"
+            }
+          ]
+        },
+        {
+          "attempt": "asian-restaurants-rollup__r1",
+          "question_id": "asian-restaurants-rollup",
+          "repeat": 1,
+          "botmap_calls": 25,
+          "failure_counts": {
+            "c-truncated": 2,
+            "c-unknown": 6
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "100"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 100; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "400"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 400; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 15,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=indonesian_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 17,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=mongolian_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 19,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=himalayan_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 20,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=nepalese_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 22,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bangladeshi_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 24,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=hibachi_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            }
+          ]
+        },
+        {
+          "attempt": "basic-category-rollup__r1",
+          "question_id": "basic-category-rollup",
+          "repeat": 1,
+          "botmap_calls": 8,
+          "failure_counts": {
+            "c-truncated": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            }
+          ]
+        },
+        {
+          "attempt": "basic-category-rollup__r2",
+          "question_id": "basic-category-rollup",
+          "repeat": 2,
+          "botmap_calls": 10,
+          "failure_counts": {
+            "A": 1,
+            "B": 1,
+            "c-truncated": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "where",
+                "Cambridge, MA",
+                "--geometry"
+              ],
+              "evidence": "command failed without recovery guidance"
+            }
+          ]
+        },
+        {
+          "attempt": "beach-accessibility-malta__r1",
+          "question_id": "beach-accessibility-malta",
+          "repeat": 1,
+          "botmap_calls": 81,
+          "failure_counts": {
+            "A": 2,
+            "B": 2,
+            "c-truncated": 2,
+            "c-unknown": 3,
+            "c-wrong-type": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Malta, MT",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 111 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MT",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MT",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MLT",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "Usage: python -m botmap count [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MLT",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "Usage: python -m botmap count [OPTIONS]"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "c-wrong-type: land_use returned 0; land returned 65 for the same filter"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 791 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 11,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "water",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "c-wrong-type: water returned 0; land returned 65 for the same filter"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 14,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 15,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            }
+          ]
+        },
+        {
+          "attempt": "bike-parking-coverage__r2",
+          "question_id": "bike-parking-coverage",
+          "repeat": 2,
+          "botmap_calls": 9,
+          "failure_counts": {
+            "B": 1,
+            "c-truncated": 2,
+            "c-unknown": 3
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bicycle_parking"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "taxonomy.primary=bicycle_parking"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "basic_category=bicycle_parking"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-with-coffee__r1",
+          "question_id": "bus-stops-with-coffee",
+          "repeat": 1,
+          "botmap_calls": 22,
+          "failure_counts": {
+            "A": 3,
+            "B": 2,
+            "c-truncated": 2,
+            "c-unknown": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "100"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 100; raised limit returned 618 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 618 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--bbox",
+                "-74.05,40.55,-73.7,40.9",
+                "--where",
+                "categories.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 13,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "50"
+              ],
+              "evidence": "Usage: python -m botmap categories [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 16,
+              "argv": [
+                "download",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--where",
+                "subtype=transit",
+                "--where",
+                "class=bus_stop",
+                "-f",
+                "geojsonseq",
+                "-o",
+                "wburg_busstops.jsonl"
+              ],
+              "evidence": "Usage: python -m botmap download [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 19,
+              "argv": [
+                "download",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--where",
+                "class=bus_stop",
+                "-f",
+                "geojsonseq",
+                "-o",
+                "wburg_busstops.jsonl"
+              ],
+              "evidence": "Usage: python -m botmap download [OPTIONS]"
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-with-coffee__r2",
+          "question_id": "bus-stops-with-coffee",
+          "repeat": 2,
+          "botmap_calls": 14,
+          "failure_counts": {
+            "c-truncated": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Williamsburg, Brooklyn",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 618 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Brooklyn",
+                "--top",
+                "1000"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 1000; raised limit returned 1482 rows"
+            }
+          ]
+        },
+        {
+          "attempt": "ev-charging-gap__r2",
+          "question_id": "ev-charging-gap",
+          "repeat": 2,
+          "botmap_calls": 40,
+          "failure_counts": {
+            "A": 14,
+            "c-truncated": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "at",
+                "42.3736,-71.1190",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "at",
+                "42.3654,-71.1035",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "at",
+                "42.3739,-71.1034",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "at",
+                "42.3884,-71.1192",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "at",
+                "42.3629,-71.0873",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "at",
+                "42.3958,-71.1409",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "at",
+                "42.3595,-71.1050",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 11,
+              "argv": [
+                "--json",
+                "at",
+                "42.3958,-71.1275",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 12,
+              "argv": [
+                "--json",
+                "at",
+                "42.3706,-71.0783",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 13,
+              "argv": [
+                "--json",
+                "at",
+                "42.3660,-71.0950",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 14,
+              "argv": [
+                "--json",
+                "at",
+                "42.3830,-71.1450",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 15,
+              "argv": [
+                "--json",
+                "at",
+                "42.3830,-71.1150",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 16,
+              "argv": [
+                "--json",
+                "at",
+                "42.3600,-71.1010",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 17,
+              "argv": [
+                "--json",
+                "at",
+                "42.3780,-71.1480",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            }
+          ]
+        },
+        {
+          "attempt": "asian-restaurants-rollup__r2",
+          "question_id": "asian-restaurants-rollup",
+          "repeat": 2,
+          "botmap_calls": 5,
+          "failure_counts": {
+            "c-truncated": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-cambridge__r2",
+          "question_id": "bus-stops-cambridge",
+          "repeat": 2,
+          "botmap_calls": 6,
+          "failure_counts": {
+            "c-truncated": 1,
+            "c-unknown": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            }
+          ]
+        },
+        {
+          "attempt": "ev-charging-gap__r1",
+          "question_id": "ev-charging-gap",
+          "repeat": 1,
+          "botmap_calls": 12,
+          "failure_counts": {
+            "D": 1,
+            "c-truncated": 1,
+            "c-unknown": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=electric_vehicle_charging_station"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=charging_station"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "D",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "where",
+                "Cambridge, MA",
+                "--geometry"
+              ],
+              "evidence": "command eventually answered but by an unusable route"
+            }
+          ]
+        }
+      ],
+      "selected_question_ids": [
+        "asian-restaurants-rollup",
+        "basic-category-rollup",
+        "beach-accessibility-malta",
+        "bike-parking-coverage",
+        "bus-stops-cambridge",
+        "bus-stops-with-coffee",
+        "ev-charging-gap"
+      ]
+    },
+    "c-wrong-column": {
+      "priority": 2,
+      "candidate": "cand/count-wrong-column-hint @ 7c794ff",
+      "principle": "If a value exists under another field, name the field and retry command.",
+      "acceptance_metric": "Target subtype reaches zero on matched attempts or converts to guided Class B used by the agent.",
+      "baseline_attempts_with_failure": 2,
+      "baseline_failure_count": 2,
+      "selected_attempts": [
+        {
+          "attempt": "bike-parking-coverage__r1",
+          "question_id": "bike-parking-coverage",
+          "repeat": 1,
+          "botmap_calls": 18,
+          "failure_counts": {
+            "B": 2,
+            "c-truncated": 3,
+            "c-wrong-column": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-column",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "subtype=bicycle_parking"
+              ],
+              "evidence": "c-wrong-column: subtype=bicycle_parking returned 0; class=bicycle_parking returned 1844. The value exists in a different column."
+            }
+          ]
+        },
+        {
+          "attempt": "residential-share-cambridge__r2",
+          "question_id": "residential-share-cambridge",
+          "repeat": 2,
+          "botmap_calls": 20,
+          "failure_counts": {
+            "A": 1,
+            "c-wrong-column": 1,
+            "c-wrong-type": 1
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "30"
+              ],
+              "evidence": "Usage: python -m botmap categories [OPTIONS]"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-column",
+              "scope": "call",
+              "index": 12,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "subtype=government"
+              ],
+              "evidence": "c-wrong-column: subtype=government returned 0; class=government returned 23. The value exists in a different column."
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 19,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "subtype=military"
+              ],
+              "evidence": "c-wrong-type: building returned 0; land_use returned 1 for the same filter"
+            }
+          ]
+        }
+      ],
+      "selected_question_ids": [
+        "bike-parking-coverage",
+        "residential-share-cambridge"
+      ]
+    },
+    "c-wrong-type": {
+      "priority": 3,
+      "candidate": "arm-d/wrong-type-hint-tool @ 9ba1187",
+      "principle": "If the same filter works under another feature type, name the type and retry command.",
+      "acceptance_metric": "Target subtype reaches zero on matched attempts, with bounded added wall-clock.",
+      "baseline_attempts_with_failure": 2,
+      "baseline_failure_count": 3,
+      "selected_attempts": [
+        {
+          "attempt": "beach-accessibility-malta__r1",
+          "question_id": "beach-accessibility-malta",
+          "repeat": 1,
+          "botmap_calls": 81,
+          "failure_counts": {
+            "A": 2,
+            "B": 2,
+            "c-truncated": 2,
+            "c-unknown": 3,
+            "c-wrong-type": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Malta, MT",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 111 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MT",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MT",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MLT",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "Usage: python -m botmap count [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MLT",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "Usage: python -m botmap count [OPTIONS]"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "c-wrong-type: land_use returned 0; land returned 65 for the same filter"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 791 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 11,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "water",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "c-wrong-type: water returned 0; land returned 65 for the same filter"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 14,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 15,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            }
+          ]
+        },
+        {
+          "attempt": "residential-share-cambridge__r2",
+          "question_id": "residential-share-cambridge",
+          "repeat": 2,
+          "botmap_calls": 20,
+          "failure_counts": {
+            "A": 1,
+            "c-wrong-column": 1,
+            "c-wrong-type": 1
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "30"
+              ],
+              "evidence": "Usage: python -m botmap categories [OPTIONS]"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-column",
+              "scope": "call",
+              "index": 12,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "subtype=government"
+              ],
+              "evidence": "c-wrong-column: subtype=government returned 0; class=government returned 23. The value exists in a different column."
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 19,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "subtype=military"
+              ],
+              "evidence": "c-wrong-type: building returned 0; land_use returned 1 for the same filter"
+            }
+          ]
+        }
+      ],
+      "selected_question_ids": [
+        "beach-accessibility-malta",
+        "residential-share-cambridge"
+      ]
+    },
+    "c-unknown": {
+      "priority": 4,
+      "candidate": "not yet accepted; requires probe split before paid run",
+      "principle": "A zero result should carry a falsifiable explanation or safe next probe.",
+      "acceptance_metric": "Do not run a product experiment until probes split vocabulary, wrong entity, unsupported field, and true zero.",
+      "baseline_attempts_with_failure": 11,
+      "baseline_failure_count": 25,
+      "selected_attempts": [
+        {
+          "attempt": "asian-restaurants-rollup__r1",
+          "question_id": "asian-restaurants-rollup",
+          "repeat": 1,
+          "botmap_calls": 25,
+          "failure_counts": {
+            "c-truncated": 2,
+            "c-unknown": 6
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "100"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 100; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "400"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 400; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 15,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=indonesian_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 17,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=mongolian_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 19,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=himalayan_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 20,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=nepalese_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 22,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bangladeshi_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 24,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=hibachi_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            }
+          ]
+        },
+        {
+          "attempt": "beach-accessibility-malta__r1",
+          "question_id": "beach-accessibility-malta",
+          "repeat": 1,
+          "botmap_calls": 81,
+          "failure_counts": {
+            "A": 2,
+            "B": 2,
+            "c-truncated": 2,
+            "c-unknown": 3,
+            "c-wrong-type": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Malta, MT",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 111 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MT",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MT",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MLT",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "Usage: python -m botmap count [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MLT",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "Usage: python -m botmap count [OPTIONS]"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "c-wrong-type: land_use returned 0; land returned 65 for the same filter"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 791 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 11,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "water",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "c-wrong-type: water returned 0; land returned 65 for the same filter"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 14,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 15,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            }
+          ]
+        },
+        {
+          "attempt": "bike-parking-coverage__r2",
+          "question_id": "bike-parking-coverage",
+          "repeat": 2,
+          "botmap_calls": 9,
+          "failure_counts": {
+            "B": 1,
+            "c-truncated": 2,
+            "c-unknown": 3
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bicycle_parking"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "taxonomy.primary=bicycle_parking"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "basic_category=bicycle_parking"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-cambridge__r1",
+          "question_id": "bus-stops-cambridge",
+          "repeat": 1,
+          "botmap_calls": 14,
+          "failure_counts": {
+            "A": 2,
+            "B": 1,
+            "c-truncated": 3,
+            "c-unknown": 3
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "basic_category=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "taxonomy.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 11,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.alternate=bus_stop"
+              ],
+              "evidence": "Traceback (most recent call last):"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 12,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "taxonomy.alternates=bus_stop"
+              ],
+              "evidence": "Traceback (most recent call last):"
+            }
+          ]
+        },
+        {
+          "attempt": "residential-share-cambridge__r1",
+          "question_id": "residential-share-cambridge",
+          "repeat": 1,
+          "botmap_calls": 15,
+          "failure_counts": {
+            "c-unknown": 3
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 12,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, US-MA",
+                "--where",
+                "subtype=null"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 13,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, US-MA",
+                "--where",
+                "class=null"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 14,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, US-MA",
+                "--where",
+                "subtype!=residential",
+                "--where",
+                "class in [house,apartments,detached,semidetached_house,terrace,bungalow]"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            }
+          ]
+        },
+        {
+          "attempt": "ev-charging-gap__r1",
+          "question_id": "ev-charging-gap",
+          "repeat": 1,
+          "botmap_calls": 12,
+          "failure_counts": {
+            "D": 1,
+            "c-truncated": 1,
+            "c-unknown": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=electric_vehicle_charging_station"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=charging_station"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "D",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "where",
+                "Cambridge, MA",
+                "--geometry"
+              ],
+              "evidence": "command eventually answered but by an unusable route"
+            }
+          ]
+        },
+        {
+          "attempt": "beach-accessibility-malta__r2",
+          "question_id": "beach-accessibility-malta",
+          "repeat": 2,
+          "botmap_calls": 6,
+          "failure_counts": {
+            "c-unknown": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Malta, MT",
+                "--where",
+                "categories.primary=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-cambridge__r2",
+          "question_id": "bus-stops-cambridge",
+          "repeat": 2,
+          "botmap_calls": 6,
+          "failure_counts": {
+            "c-truncated": 1,
+            "c-unknown": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-with-coffee__r1",
+          "question_id": "bus-stops-with-coffee",
+          "repeat": 1,
+          "botmap_calls": 22,
+          "failure_counts": {
+            "A": 3,
+            "B": 2,
+            "c-truncated": 2,
+            "c-unknown": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "100"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 100; raised limit returned 618 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 618 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--bbox",
+                "-74.05,40.55,-73.7,40.9",
+                "--where",
+                "categories.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 13,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "50"
+              ],
+              "evidence": "Usage: python -m botmap categories [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 16,
+              "argv": [
+                "download",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--where",
+                "subtype=transit",
+                "--where",
+                "class=bus_stop",
+                "-f",
+                "geojsonseq",
+                "-o",
+                "wburg_busstops.jsonl"
+              ],
+              "evidence": "Usage: python -m botmap download [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 19,
+              "argv": [
+                "download",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--where",
+                "class=bus_stop",
+                "-f",
+                "geojsonseq",
+                "-o",
+                "wburg_busstops.jsonl"
+              ],
+              "evidence": "Usage: python -m botmap download [OPTIONS]"
+            }
+          ]
+        },
+        {
+          "attempt": "malta-highways-absent-class__r1",
+          "question_id": "malta-highways-absent-class",
+          "repeat": 1,
+          "botmap_calls": 10,
+          "failure_counts": {
+            "c-unknown": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "segment",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "class=motorway"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            }
+          ]
+        },
+        {
+          "attempt": "street-canonical-form__r1",
+          "question_id": "street-canonical-form",
+          "repeat": 1,
+          "botmap_calls": 5,
+          "failure_counts": {
+            "c-unknown": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "address",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "street=Massachusetts Avenue"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            }
+          ]
+        }
+      ],
+      "selected_question_ids": [
+        "asian-restaurants-rollup",
+        "beach-accessibility-malta",
+        "bike-parking-coverage",
+        "bus-stops-cambridge",
+        "bus-stops-with-coffee",
+        "ev-charging-gap",
+        "malta-highways-absent-class",
+        "residential-share-cambridge",
+        "street-canonical-form"
+      ]
+    },
+    "A": {
+      "priority": 5,
+      "candidate": "not yet accepted; A-to-B recovery candidate needed",
+      "principle": "Hard errors should become guided retry paths.",
+      "acceptance_metric": "Class A falls and Class B/self-recovery rises on matched usage-error attempts.",
+      "baseline_attempts_with_failure": 17,
+      "baseline_failure_count": 38,
+      "selected_attempts": [
+        {
+          "attempt": "ev-charging-gap__r2",
+          "question_id": "ev-charging-gap",
+          "repeat": 2,
+          "botmap_calls": 40,
+          "failure_counts": {
+            "A": 14,
+            "c-truncated": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "at",
+                "42.3736,-71.1190",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "at",
+                "42.3654,-71.1035",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "at",
+                "42.3739,-71.1034",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "at",
+                "42.3884,-71.1192",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "at",
+                "42.3629,-71.0873",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "at",
+                "42.3958,-71.1409",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "at",
+                "42.3595,-71.1050",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 11,
+              "argv": [
+                "--json",
+                "at",
+                "42.3958,-71.1275",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 12,
+              "argv": [
+                "--json",
+                "at",
+                "42.3706,-71.0783",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 13,
+              "argv": [
+                "--json",
+                "at",
+                "42.3660,-71.0950",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 14,
+              "argv": [
+                "--json",
+                "at",
+                "42.3830,-71.1450",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 15,
+              "argv": [
+                "--json",
+                "at",
+                "42.3830,-71.1150",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 16,
+              "argv": [
+                "--json",
+                "at",
+                "42.3600,-71.1010",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 17,
+              "argv": [
+                "--json",
+                "at",
+                "42.3780,-71.1480",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-with-coffee__r1",
+          "question_id": "bus-stops-with-coffee",
+          "repeat": 1,
+          "botmap_calls": 22,
+          "failure_counts": {
+            "A": 3,
+            "B": 2,
+            "c-truncated": 2,
+            "c-unknown": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "100"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 100; raised limit returned 618 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 618 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--bbox",
+                "-74.05,40.55,-73.7,40.9",
+                "--where",
+                "categories.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 13,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "50"
+              ],
+              "evidence": "Usage: python -m botmap categories [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 16,
+              "argv": [
+                "download",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--where",
+                "subtype=transit",
+                "--where",
+                "class=bus_stop",
+                "-f",
+                "geojsonseq",
+                "-o",
+                "wburg_busstops.jsonl"
+              ],
+              "evidence": "Usage: python -m botmap download [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 19,
+              "argv": [
+                "download",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--where",
+                "class=bus_stop",
+                "-f",
+                "geojsonseq",
+                "-o",
+                "wburg_busstops.jsonl"
+              ],
+              "evidence": "Usage: python -m botmap download [OPTIONS]"
+            }
+          ]
+        },
+        {
+          "attempt": "junction-density__r2",
+          "question_id": "junction-density",
+          "repeat": 2,
+          "botmap_calls": 19,
+          "failure_counts": {
+            "A": 3
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 16,
+              "argv": [
+                "at",
+                "40.71721,-73.94845",
+                "-t",
+                "place",
+                "--category",
+                "train_station",
+                "--radius",
+                "500",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 17,
+              "argv": [
+                "at",
+                "40.71991,-73.94489",
+                "-t",
+                "place",
+                "--category",
+                "train_station",
+                "--radius",
+                "500",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 18,
+              "argv": [
+                "at",
+                "40.71182,-73.95556",
+                "-t",
+                "place",
+                "--category",
+                "train_station",
+                "--radius",
+                "500",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            }
+          ]
+        },
+        {
+          "attempt": "beach-accessibility-malta__r1",
+          "question_id": "beach-accessibility-malta",
+          "repeat": 1,
+          "botmap_calls": 81,
+          "failure_counts": {
+            "A": 2,
+            "B": 2,
+            "c-truncated": 2,
+            "c-unknown": 3,
+            "c-wrong-type": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Malta, MT",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 111 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MT",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MT",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MLT",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "Usage: python -m botmap count [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MLT",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "Usage: python -m botmap count [OPTIONS]"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "c-wrong-type: land_use returned 0; land returned 65 for the same filter"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 791 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 11,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "water",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "c-wrong-type: water returned 0; land returned 65 for the same filter"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 14,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 15,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-cambridge__r1",
+          "question_id": "bus-stops-cambridge",
+          "repeat": 1,
+          "botmap_calls": 14,
+          "failure_counts": {
+            "A": 2,
+            "B": 1,
+            "c-truncated": 3,
+            "c-unknown": 3
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "basic_category=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "taxonomy.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 11,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.alternate=bus_stop"
+              ],
+              "evidence": "Traceback (most recent call last):"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 12,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "taxonomy.alternates=bus_stop"
+              ],
+              "evidence": "Traceback (most recent call last):"
+            }
+          ]
+        },
+        {
+          "attempt": "reykjavik-diacritic__r1",
+          "question_id": "reykjavik-diacritic",
+          "repeat": 1,
+          "botmap_calls": 6,
+          "failure_counts": {
+            "A": 2
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 0,
+              "argv": [
+                "--json",
+                "where",
+                "Reykjavik, Iceland"
+              ],
+              "evidence": "{\"error\":{\"code\":\"no_match\",\"message\":\"No division found for 'Reykjavik, Iceland'. It may be a neighborhood not in Overture's divisions index. Try a parent locality (city \u2192 state \u2192 country), `containing LAT,LON`, or `--bbox`.\"}}"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "where",
+                "Reykjav\u00edk, Iceland",
+                "--geometry",
+                "-o",
+                "/tmp/reyk2.geojson"
+              ],
+              "evidence": "Usage: python -m botmap where [OPTIONS] QUERY"
+            }
+          ]
+        },
+        {
+          "attempt": "waterfront-buildings-reykjavik__r1",
+          "question_id": "waterfront-buildings-reykjavik",
+          "repeat": 1,
+          "botmap_calls": 8,
+          "failure_counts": {
+            "A": 2
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 0,
+              "argv": [
+                "--json",
+                "where",
+                "Reykjavik"
+              ],
+              "evidence": "{\"error\":{\"code\":\"no_match\",\"message\":\"No division found for 'Reykjavik'. It may be a neighborhood not in Overture's divisions index. Try a parent locality (city \u2192 state \u2192 country), `containing LAT,LON`, or `--bbox`.\"}}"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "where",
+                "Reykjav\u00edk",
+                "--geometry",
+                "-o",
+                "/tmp/reyk_boundary.geojson"
+              ],
+              "evidence": "Usage: python -m botmap where [OPTIONS] QUERY"
+            }
+          ]
+        },
+        {
+          "attempt": "basic-category-rollup__r2",
+          "question_id": "basic-category-rollup",
+          "repeat": 2,
+          "botmap_calls": 10,
+          "failure_counts": {
+            "A": 1,
+            "B": 1,
+            "c-truncated": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "where",
+                "Cambridge, MA",
+                "--geometry"
+              ],
+              "evidence": "command failed without recovery guidance"
+            }
+          ]
+        },
+        {
+          "attempt": "building-parts-detail__r1",
+          "question_id": "building-parts-detail",
+          "repeat": 1,
+          "botmap_calls": 11,
+          "failure_counts": {
+            "A": 1,
+            "B": 1
+          },
+          "failures": [
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 0,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "building_parts",
+                "--in",
+                "Cambridge, MA",
+                "-f",
+                "geojsonseq",
+                "-o",
+                "cambridge_parts.jsonl"
+              ],
+              "evidence": "Usage: python -m botmap [OPTIONS] COMMAND [ARGS]..."
+            }
+          ]
+        },
+        {
+          "attempt": "malta-highways-absent-class__r2",
+          "question_id": "malta-highways-absent-class",
+          "repeat": 2,
+          "botmap_calls": 6,
+          "failure_counts": {
+            "A": 1,
+            "B": 1
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "where",
+                "Malta, MLT"
+              ],
+              "evidence": "{\"error\":{\"code\":\"no_match\",\"message\":\"No division found for 'Malta, MLT'. The qualifier 'MLT' matched nothing, but 'Malta' alone resolves to Malta (country, MT, pop 423,282). Use that, `containing LAT,LON`, or `--bbox`.\"}}"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            }
+          ]
+        },
+        {
+          "attempt": "pharmacies-monaco__r1",
+          "question_id": "pharmacies-monaco",
+          "repeat": 1,
+          "botmap_calls": 4,
+          "failure_counts": {
+            "A": 1
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Monaco, MC",
+                "--where",
+                "categories.primary=pharmacy"
+              ],
+              "evidence": "Usage: python -m botmap count [OPTIONS]"
+            }
+          ]
+        },
+        {
+          "attempt": "pharmacies-monaco__r2",
+          "question_id": "pharmacies-monaco",
+          "repeat": 2,
+          "botmap_calls": 4,
+          "failure_counts": {
+            "A": 1
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Monaco, MC",
+                "--where",
+                "categories.primary=pharmacy"
+              ],
+              "evidence": "Usage: python -m botmap count [OPTIONS]"
+            }
+          ]
+        },
+        {
+          "attempt": "pharmacy-near-address__r1",
+          "question_id": "pharmacy-near-address",
+          "repeat": 1,
+          "botmap_calls": 4,
+          "failure_counts": {
+            "A": 1
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "at",
+                "42.3663248,-71.1060534",
+                "-t",
+                "place",
+                "--category",
+                "pharmacy",
+                "-n",
+                "5",
+                "--json"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            }
+          ]
+        },
+        {
+          "attempt": "pharmacy-near-address__r2",
+          "question_id": "pharmacy-near-address",
+          "repeat": 2,
+          "botmap_calls": 4,
+          "failure_counts": {
+            "A": 1
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "at",
+                "42.3663248,-71.1060534",
+                "-t",
+                "place",
+                "--category",
+                "pharmacy",
+                "-n",
+                "5",
+                "--json"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            }
+          ]
+        },
+        {
+          "attempt": "residential-share-cambridge__r2",
+          "question_id": "residential-share-cambridge",
+          "repeat": 2,
+          "botmap_calls": 20,
+          "failure_counts": {
+            "A": 1,
+            "c-wrong-column": 1,
+            "c-wrong-type": 1
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "30"
+              ],
+              "evidence": "Usage: python -m botmap categories [OPTIONS]"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-column",
+              "scope": "call",
+              "index": 12,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "subtype=government"
+              ],
+              "evidence": "c-wrong-column: subtype=government returned 0; class=government returned 23. The value exists in a different column."
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 19,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "subtype=military"
+              ],
+              "evidence": "c-wrong-type: building returned 0; land_use returned 1 for the same filter"
+            }
+          ]
+        },
+        {
+          "attempt": "reykjavik-diacritic__r2",
+          "question_id": "reykjavik-diacritic",
+          "repeat": 2,
+          "botmap_calls": 4,
+          "failure_counts": {
+            "A": 1
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 0,
+              "argv": [
+                "--json",
+                "where",
+                "Reykjavik"
+              ],
+              "evidence": "{\"error\":{\"code\":\"no_match\",\"message\":\"No division found for 'Reykjavik'. It may be a neighborhood not in Overture's divisions index. Try a parent locality (city \u2192 state \u2192 country), `containing LAT,LON`, or `--bbox`.\"}}"
+            }
+          ]
+        },
+        {
+          "attempt": "street-canonical-form__r2",
+          "question_id": "street-canonical-form",
+          "repeat": 2,
+          "botmap_calls": 5,
+          "failure_counts": {
+            "A": 1
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "address",
+                "--in",
+                "Cambridge, MA",
+                "--street",
+                "Massachusetts Ave"
+              ],
+              "evidence": "Usage: python -m botmap count [OPTIONS]"
+            }
+          ]
+        }
+      ],
+      "selected_question_ids": [
+        "basic-category-rollup",
+        "beach-accessibility-malta",
+        "building-parts-detail",
+        "bus-stops-cambridge",
+        "bus-stops-with-coffee",
+        "ev-charging-gap",
+        "junction-density",
+        "malta-highways-absent-class",
+        "pharmacies-monaco",
+        "pharmacy-near-address",
+        "residential-share-cambridge",
+        "reykjavik-diacritic",
+        "street-canonical-form",
+        "waterfront-buildings-reykjavik"
+      ]
+    },
+    "combined-accepted-patches-priority": {
+      "priority": 0,
+      "candidate": "combined tool-side hints: 00bff1a + 7c794ff + 9ba1187",
+      "principle": "Validate the accepted/provisional tool-side principles together before a full-bank run.",
+      "acceptance_metric": "Class C target subtypes fall together without material token/wall-clock regression.",
+      "baseline_attempts_with_failure": 14,
+      "baseline_failure_count": 30,
+      "selected_attempts": [
+        {
+          "attempt": "beach-accessibility-malta__r1",
+          "question_id": "beach-accessibility-malta",
+          "repeat": 1,
+          "botmap_calls": 81,
+          "failure_counts": {
+            "A": 2,
+            "B": 2,
+            "c-truncated": 2,
+            "c-unknown": 3,
+            "c-wrong-type": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Malta, MT",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 111 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MT",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MT",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MLT",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "Usage: python -m botmap count [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--in",
+                "Malta, MLT",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "Usage: python -m botmap count [OPTIONS]"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "c-wrong-type: land_use returned 0; land returned 65 for the same filter"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "land_use",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "subtype=beach"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 791 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 11,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "water",
+                "--bbox",
+                "13.936042785644531,35.585365295410156,14.822786331176758,36.28254699707031",
+                "--where",
+                "class=beach"
+              ],
+              "evidence": "c-wrong-type: water returned 0; land returned 65 for the same filter"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 14,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 15,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            }
+          ]
+        },
+        {
+          "attempt": "bike-parking-coverage__r1",
+          "question_id": "bike-parking-coverage",
+          "repeat": 1,
+          "botmap_calls": 18,
+          "failure_counts": {
+            "B": 2,
+            "c-truncated": 3,
+            "c-wrong-column": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-column",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "subtype=bicycle_parking"
+              ],
+              "evidence": "c-wrong-column: subtype=bicycle_parking returned 0; class=bicycle_parking returned 1844. The value exists in a different column."
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-cambridge__r1",
+          "question_id": "bus-stops-cambridge",
+          "repeat": 1,
+          "botmap_calls": 14,
+          "failure_counts": {
+            "A": 2,
+            "B": 1,
+            "c-truncated": 3,
+            "c-unknown": 3
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "basic_category=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "taxonomy.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 11,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.alternate=bus_stop"
+              ],
+              "evidence": "Traceback (most recent call last):"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 12,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "taxonomy.alternates=bus_stop"
+              ],
+              "evidence": "Traceback (most recent call last):"
+            }
+          ]
+        },
+        {
+          "attempt": "asian-restaurants-rollup__r1",
+          "question_id": "asian-restaurants-rollup",
+          "repeat": 1,
+          "botmap_calls": 25,
+          "failure_counts": {
+            "c-truncated": 2,
+            "c-unknown": 6
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "100"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 100; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "400"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 400; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 15,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=indonesian_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 17,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=mongolian_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 19,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=himalayan_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 20,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=nepalese_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 22,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bangladeshi_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 24,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=hibachi_restaurant"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            }
+          ]
+        },
+        {
+          "attempt": "basic-category-rollup__r1",
+          "question_id": "basic-category-rollup",
+          "repeat": 1,
+          "botmap_calls": 8,
+          "failure_counts": {
+            "c-truncated": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            }
+          ]
+        },
+        {
+          "attempt": "basic-category-rollup__r2",
+          "question_id": "basic-category-rollup",
+          "repeat": 2,
+          "botmap_calls": 10,
+          "failure_counts": {
+            "A": 1,
+            "B": 1,
+            "c-truncated": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "where",
+                "Cambridge, MA",
+                "--geometry"
+              ],
+              "evidence": "command failed without recovery guidance"
+            }
+          ]
+        },
+        {
+          "attempt": "bike-parking-coverage__r2",
+          "question_id": "bike-parking-coverage",
+          "repeat": 2,
+          "botmap_calls": 9,
+          "failure_counts": {
+            "B": 1,
+            "c-truncated": 2,
+            "c-unknown": 3
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bicycle_parking"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "taxonomy.primary=bicycle_parking"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "basic_category=bicycle_parking"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-with-coffee__r1",
+          "question_id": "bus-stops-with-coffee",
+          "repeat": 1,
+          "botmap_calls": 22,
+          "failure_counts": {
+            "A": 3,
+            "B": 2,
+            "c-truncated": 2,
+            "c-unknown": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "100"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 100; raised limit returned 618 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 618 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--bbox",
+                "-74.05,40.55,-73.7,40.9",
+                "--where",
+                "categories.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "schema",
+                "-t",
+                "place"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "B",
+              "subtype": null,
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "capabilities"
+              ],
+              "evidence": "tool named a recovery path for the next iteration"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 13,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--top",
+                "50"
+              ],
+              "evidence": "Usage: python -m botmap categories [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 16,
+              "argv": [
+                "download",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--where",
+                "subtype=transit",
+                "--where",
+                "class=bus_stop",
+                "-f",
+                "geojsonseq",
+                "-o",
+                "wburg_busstops.jsonl"
+              ],
+              "evidence": "Usage: python -m botmap download [OPTIONS]"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 19,
+              "argv": [
+                "download",
+                "-t",
+                "infrastructure",
+                "--in",
+                "Williamsburg, Brooklyn, NY",
+                "--where",
+                "class=bus_stop",
+                "-f",
+                "geojsonseq",
+                "-o",
+                "wburg_busstops.jsonl"
+              ],
+              "evidence": "Usage: python -m botmap download [OPTIONS]"
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-with-coffee__r2",
+          "question_id": "bus-stops-with-coffee",
+          "repeat": 2,
+          "botmap_calls": 14,
+          "failure_counts": {
+            "c-truncated": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 3,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Williamsburg, Brooklyn",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 618 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Brooklyn",
+                "--top",
+                "1000"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 1000; raised limit returned 1482 rows"
+            }
+          ]
+        },
+        {
+          "attempt": "ev-charging-gap__r2",
+          "question_id": "ev-charging-gap",
+          "repeat": 2,
+          "botmap_calls": 40,
+          "failure_counts": {
+            "A": 14,
+            "c-truncated": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "50"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 50; raised limit returned 500 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "500"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 500; raised limit returned 980 rows"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "at",
+                "42.3736,-71.1190",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 5,
+              "argv": [
+                "--json",
+                "at",
+                "42.3654,-71.1035",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "--json",
+                "at",
+                "42.3739,-71.1034",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 7,
+              "argv": [
+                "--json",
+                "at",
+                "42.3884,-71.1192",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 8,
+              "argv": [
+                "--json",
+                "at",
+                "42.3629,-71.0873",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 9,
+              "argv": [
+                "--json",
+                "at",
+                "42.3958,-71.1409",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 10,
+              "argv": [
+                "--json",
+                "at",
+                "42.3595,-71.1050",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 11,
+              "argv": [
+                "--json",
+                "at",
+                "42.3958,-71.1275",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 12,
+              "argv": [
+                "--json",
+                "at",
+                "42.3706,-71.0783",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 13,
+              "argv": [
+                "--json",
+                "at",
+                "42.3660,-71.0950",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 14,
+              "argv": [
+                "--json",
+                "at",
+                "42.3830,-71.1450",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 15,
+              "argv": [
+                "--json",
+                "at",
+                "42.3830,-71.1150",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 16,
+              "argv": [
+                "--json",
+                "at",
+                "42.3600,-71.1010",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            },
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 17,
+              "argv": [
+                "--json",
+                "at",
+                "42.3780,-71.1480",
+                "-t",
+                "place",
+                "--category",
+                "ev_charging_station",
+                "--radius",
+                "800",
+                "-n",
+                "3"
+              ],
+              "evidence": "Usage: python -m botmap at [OPTIONS] LATLON"
+            }
+          ]
+        },
+        {
+          "attempt": "residential-share-cambridge__r2",
+          "question_id": "residential-share-cambridge",
+          "repeat": 2,
+          "botmap_calls": 20,
+          "failure_counts": {
+            "A": 1,
+            "c-wrong-column": 1,
+            "c-wrong-type": 1
+          },
+          "failures": [
+            {
+              "class": "A",
+              "subtype": null,
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "30"
+              ],
+              "evidence": "Usage: python -m botmap categories [OPTIONS]"
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-column",
+              "scope": "call",
+              "index": 12,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "subtype=government"
+              ],
+              "evidence": "c-wrong-column: subtype=government returned 0; class=government returned 23. The value exists in a different column."
+            },
+            {
+              "class": "C",
+              "subtype": "c-wrong-type",
+              "scope": "call",
+              "index": 19,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "building",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "subtype=military"
+              ],
+              "evidence": "c-wrong-type: building returned 0; land_use returned 1 for the same filter"
+            }
+          ]
+        },
+        {
+          "attempt": "asian-restaurants-rollup__r2",
+          "question_id": "asian-restaurants-rollup",
+          "repeat": 2,
+          "botmap_calls": 5,
+          "failure_counts": {
+            "c-truncated": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            }
+          ]
+        },
+        {
+          "attempt": "bus-stops-cambridge__r2",
+          "question_id": "bus-stops-cambridge",
+          "repeat": 2,
+          "botmap_calls": 6,
+          "failure_counts": {
+            "c-truncated": 1,
+            "c-unknown": 1
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=bus_stop"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            }
+          ]
+        },
+        {
+          "attempt": "ev-charging-gap__r1",
+          "question_id": "ev-charging-gap",
+          "repeat": 1,
+          "botmap_calls": 12,
+          "failure_counts": {
+            "D": 1,
+            "c-truncated": 1,
+            "c-unknown": 2
+          },
+          "failures": [
+            {
+              "class": "C",
+              "subtype": "c-truncated",
+              "scope": "call",
+              "index": 1,
+              "argv": [
+                "--json",
+                "categories",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--top",
+                "200"
+              ],
+              "evidence": "c-truncated: original output length equalled limit 200; raised limit returned 980 rows"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 2,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=electric_vehicle_charging_station"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "C",
+              "subtype": "c-unknown",
+              "scope": "call",
+              "index": 4,
+              "argv": [
+                "--json",
+                "count",
+                "-t",
+                "place",
+                "--in",
+                "Cambridge, MA",
+                "--where",
+                "categories.primary=charging_station"
+              ],
+              "evidence": "empty result with no conclusive probe; reason unknown"
+            },
+            {
+              "class": "D",
+              "subtype": null,
+              "scope": "call",
+              "index": 6,
+              "argv": [
+                "where",
+                "Cambridge, MA",
+                "--geometry"
+              ],
+              "evidence": "command eventually answered but by an unusable route"
+            }
+          ]
+        }
+      ],
+      "selected_question_ids": [
+        "asian-restaurants-rollup",
+        "basic-category-rollup",
+        "beach-accessibility-malta",
+        "bike-parking-coverage",
+        "bus-stops-cambridge",
+        "bus-stops-with-coffee",
+        "ev-charging-gap",
+        "residential-share-cambridge"
+      ]
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "note": "Repairs the three zero-call treatment cells (agent never invoked botmap) and adds the new regional-vocabulary question. bus-stops-cambridge is the priority: it is the only attempt where the control showed a c-vocabulary failure, the class this instruction targets.",
+  "subsets": {
+    "semantic-vocab-repairs": {
+      "priority": 1,
+      "acceptance_metric": "c-vocabulary on bus-stops-cambridge; petrol reaches gas_station.",
+      "selected_attempts": [
+        {
+          "attempt": "bus-stops-cambridge__r2",
+          "question_id": "bus-stops-cambridge",
+          "repeat": 2
+        },
+        {
+          "attempt": "basic-category-rollup__r2",
+          "question_id": "basic-category-rollup",
+          "repeat": 2
+        },
+        {
+          "attempt": "bike-parking-coverage__r2",
+          "question_id": "bike-parking-coverage",
+          "repeat": 2
+        },
+        {
+          "attempt": "petrol-pumps-cambridge__r1",
+          "question_id": "petrol-pumps-cambridge",
+          "repeat": 1
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,165 @@
+From 2f9cefcf802e5dd40a6aa7df4637bebfebc611b7 Mon Sep 17 00:00:00 2001
+From: PriyangaPKini <priyangapkini99@gmail.com>
+Date: Mon, 31 Aug 2026 15:56:46 +0530
+Subject: [PATCH] Add category search filter
+
+---
+ botmap/cli.py                | 36 ++++++++++++++--
+ tests/test_cli_categories.py | 79 +++++++++++++++++++++++++++++++++++-
+ 2 files changed, 111 insertions(+), 4 deletions(-)
+
+diff --git a/botmap/cli.py b/botmap/cli.py
+index f72a565..a47acc4 100644
+--- a/botmap/cli.py
++++ b/botmap/cli.py
+@@ -963,10 +963,13 @@ def schema(ctx, type_, release):
+ @click.option("--bbox", required=False, type=BboxParamType())
+ @click.option("--in", "in_place", required=False, type=str)
+ @click.option("--top", default=20, show_default=True, type=int)
++@click.option("--search", default=None, type=str,
++              help="After counting categories in the selected area, show only "
++                   "category values containing this text. Still scans the area.")
+ @click.option("-r", "--release", default=None, callback=validate_release,
+               required=False)
+ @click.pass_context
+-def categories(ctx, type_, bbox, in_place, top, release):
++def categories(ctx, type_, bbox, in_place, top, search, release):
+     """Enumerate `categories.primary` values, sorted by count desc."""
+     if type_ != "place":
+         verb = TYPE_TO_VERB.get(type_)
+@@ -1014,8 +1017,35 @@ def categories(ctx, type_, bbox, in_place, top, release):
+                 continue
+             counts[val] = counts.get(val, 0) + item["counts"]
+ 
+-    ranked = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)[:top]
+-    payload = [{"value": v, "count": c} for v, c in ranked]
++    ranked = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)
++    if search is not None:
++        needle = search.casefold()
++        ranked = [(value, count) for value, count in ranked
++                  if needle in value.casefold()]
++
++    payload = [{"value": v, "count": c} for v, c in ranked[:top]]
++
++    if len(ranked) > top:
++        if search is None:
++            click.echo(
++                f"[botmap] Showing top {top} of {len(ranked)} categories. "
++                f"This list is truncated; use `--search TERM` if looking for "
++                f"a specific category, or rerun with `--top {len(ranked)}`.",
++                err=True,
++            )
++        else:
++            click.echo(
++                f"[botmap] Showing top {top} of {len(ranked)} categories "
++                f"matching {search!r}. This list is truncated; rerun with "
++                f"`--top {len(ranked)}` or a larger --top.",
++                err=True,
++            )
++
++    if search is not None and not payload:
++        click.echo(
++            f"[botmap] No categories matching {search!r} in this area.",
++            err=True,
++        )
+ 
+     if ctx.obj.get("json"):
+         _emit_json(ctx, payload)
+diff --git a/tests/test_cli_categories.py b/tests/test_cli_categories.py
+index 770c3a9..a06a700 100644
+--- a/tests/test_cli_categories.py
++++ b/tests/test_cli_categories.py
+@@ -45,12 +45,89 @@ def test_categories_returns_top_values(monkeypatch):
+         "--bbox", "-71.1,42.3,-71.0,42.4", "--top", "3",
+     ])
+     assert result.exit_code == 0, result.output
+-    data = json.loads(result.output)
++    data = json.loads(result.stdout)
+     assert data == [
+         {"value": "restaurant", "count": 10},
+         {"value": "cafe", "count": 7},
+         {"value": "bar", "count": 3},
+     ]
++    assert "truncated" in result.stderr
++
++
++def test_categories_search_filters_values_case_insensitively(monkeypatch):
++    """--search filters the counted category vocabulary without breaking JSON stdout."""
++
++    schema = pa.schema([
++        ("categories", pa.struct([("primary", pa.string())])),
++    ])
++    rows = (
++        [{"categories": {"primary": "bicycle_parking"}}] * 10 +
++        [{"categories": {"primary": "bicycle_rental"}}] * 3 +
++        [{"categories": {"primary": "car_parking"}}] * 7
++    )
++
++    class _Reader:
++        def __init__(self):
++            self.schema = schema
++            self._done = False
++
++        def read_next_batch(self):
++            if self._done:
++                raise StopIteration
++            self._done = True
++            return pa.RecordBatch.from_pylist(rows, schema=schema)
++
++    monkeypatch.setattr("botmap.cli.record_batch_reader",
++                        lambda *a, **k: _Reader())
++    monkeypatch.setattr("botmap.cli.get_latest_release",
++                        lambda: "2025-12-17.0")
++
++    runner = CliRunner()
++    result = runner.invoke(cli, [
++        "--json", "categories", "-t", "place",
++        "--bbox", "-71.1,42.3,-71.0,42.4", "--search", "BICYCLE",
++    ])
++
++    assert result.exit_code == 0, result.output
++    assert json.loads(result.stdout) == [
++        {"value": "bicycle_parking", "count": 10},
++        {"value": "bicycle_rental", "count": 3},
++    ]
++
++
++def test_categories_search_no_matches_keeps_empty_json_stdout(monkeypatch):
++    """A failed search returns [] on stdout and a diagnostic on stderr."""
++
++    schema = pa.schema([
++        ("categories", pa.struct([("primary", pa.string())])),
++    ])
++    rows = [{"categories": {"primary": "restaurant"}}]
++
++    class _Reader:
++        def __init__(self):
++            self.schema = schema
++            self._done = False
++
++        def read_next_batch(self):
++            if self._done:
++                raise StopIteration
++            self._done = True
++            return pa.RecordBatch.from_pylist(rows, schema=schema)
++
++    monkeypatch.setattr("botmap.cli.record_batch_reader",
++                        lambda *a, **k: _Reader())
++    monkeypatch.setattr("botmap.cli.get_latest_release",
++                        lambda: "2025-12-17.0")
++
++    runner = CliRunner()
++    result = runner.invoke(cli, [
++        "--json", "categories", "-t", "place",
++        "--bbox", "-71.1,42.3,-71.0,42.4", "--search", "bicycle",
++    ])
++
++    assert result.exit_code == 0, result.output
++    assert json.loads(result.stdout) == []
++    assert "No categories matching" in result.stderr
+ 
+ 
+ def test_categories_non_place_type_with_verb_gives_helpful_error(monkeypatch):
+-- 
+2.50.1 (Apple Git-155)
+

@@ -1,0 +1,17 @@
+{
+  "note": "Single-question regional-vocabulary probe. 'petrol pump' shares no substring with Overture's gas_station, so `categories --search petrol` returns nothing: substring search on the question's own wording cannot succeed. Run on both arms to get a control, since this question is new and absent from the 3009509 baseline.",
+  "subsets": {
+    "petrol-vocab": {
+      "priority": 1,
+      "principle": "The agent must restate the concept before searching, not search the question's wording.",
+      "acceptance_metric": "Treatment reaches gas_station and reports a count; failure is concluding the category is absent.",
+      "selected_attempts": [
+        {
+          "attempt": "petrol-pumps-cambridge__r1",
+          "question_id": "petrol-pumps-cambridge",
+          "repeat": 1
+        }
+      ]
+    }
+  }
+}

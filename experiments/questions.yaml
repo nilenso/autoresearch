@@ -120,6 +120,14 @@
   place: "Cambridge, MA"
   notes: "Ideal: count -t place --in 'Cambridge, MA' --where basic_category=pharmacy_and_drug_store. basic_category is undocumented and has its own vocabulary — basic_category=pharmacy returns 0."
 
+- id: petrol-pumps-cambridge
+  question: "How many petrol pumps are there in Cambridge, Massachusetts?"
+  tier: 2
+  download_is_legitimate: false
+  target_type: place
+  place: "Cambridge, MA"
+  notes: "Ideal: count -t place --in 'Cambridge, MA' --where categories.primary=gas_station. Regional-vocabulary test: 'petrol' shares no substring with gas_station, so `categories --search petrol` returns nothing. Substring search on the question's own wording cannot succeed — the agent has to restate the concept (petrol pump → gas / fuel / station) before searching. Failure is concluding the category is absent."
+
 # ---------------------------------------------------------------------------
 # Tier 3 — malformed, ambiguous, or aimed past the data. Success is a good
 # error, not a good answer.
