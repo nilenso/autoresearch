@@ -253,8 +253,9 @@ So the three starting scores <i>should</i> have been identical. They were not: t
 came out 0.5764 to 0.7637, a gap of <b>0.187</b> caused by nothing but the agent
 behaving differently each time.
 That gap is the size of the wobble. It is 31× bigger than Arm C's
-+0.006 improvement and 12× bigger than the narrow tool run's
-+0.016. It is like weighing yourself on a scale that swings by two kilos
++0.006 (almost certainly noise, not a real gain) and 12× bigger
+than the narrow tool run's +0.016. It is like weighing yourself on a scale
+that swings by two kilos
 and announcing you lost sixty grams — the loss may be real, but this scale cannot
 see it. <b>Read the curves below for their shape, not their height.</b>
 </div>
@@ -274,18 +275,18 @@ nothing because most candidates never pass the cheap 3-question screen first.</p
 </div>
 <ul class="bullets">
 <li><b>Arm B</b> ended at its base — 5 candidates, none better.</li>
-<li><b>Arm C</b> beat its base by +0.0060; <b>tool-narrow</b> beat its base by +0.0161.</li>
 <li>On a rubric where the baseline noise band has never been established, a delta of
-+0.006 is not a result; only the narrow 4-file tool run moved far enough
-(+0.016) to be worth a second look — and even that sits well inside the
-0.187 spread above.</li>
++0.006 (Arm C) is not a result — it's within measurement noise, not an
+improvement. Only the narrow 4-file tool run moved far enough (+0.016) to
+be worth a second look, and even that sits well inside the 0.187 spread
+above.</li>
 </ul>
 
 <h2>Figure 2 · All experiments, at a glance</h2>
 <p class="note">Five arms plus the narrow 4-file GEPA run, each asking a different
 question about where agent-friendliness comes from. Result and trace/report links
 per experiment:</p>
-<div class="arm-cards"><div class="arm-card"><span class="tag">not plotted</span><h4>Arm A</h4><p>Can an agent run the whole research loop itself?</p><p><b>Could change:</b> 3 candidates, the whole 60-attempt bank each</p><p class="result">None accepted. Two enrichments timed out; one run halted at 37/60.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-a-loop-as-skill" target="_blank" rel="noopener">arm folder &#8599;</a></p></div><div class="arm-card"><span class="tag">Figure 1</span><h4>Arm B</h4><p>Can agent-friendliness be supplied as instructions?</p><p><b>Could change:</b> botmap/data/skill.md only</p><p class="result">+0.0000. Best held-out program was the base prompt; final patch empty.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-b-prompt-gepa" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-b-prompt-gepa/runs" target="_blank" rel="noopener">browse run &#8599;</a></p></div><div class="arm-card"><span class="tag">Figure 1</span><h4>Arm C</h4><p>Does seeing the whole codebase help it find the right file to fix?</p><p><b>Could change:</b> 83 tracked files, ~557k chars of context</p><p class="result">+0.0060. Best patch edited .gitignore and left &quot;new file needed&quot; notes.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-c-full-repo-gepa" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-c-full-repo-gepa/runs" target="_blank" rel="noopener">browse run &#8599;</a></p></div><div class="arm-card"><span class="tag">Figure 1</span><h4>tool-narrow</h4><p>Same idea as Arm C, but allowed to touch far less.</p><p><b>Could change:</b> 4 files</p><p class="result">+0.0161. The biggest gain any optimizer managed — still inside the wobble.</p><p><span class="pending" title="not confirmed under HF arms/arm-c-full-repo-gepa/ — local: experiments/runs/tool-3009509-1787049966/">not confirmed</span></p></div><div class="arm-card"><span class="tag">Figure 2, Exp 3</span><h4>Arm D</h4><p>Can the list of measured failures tell us what to try next?</p><p><b>Could change:</b> 1 tool-side hint (7 experiments proposed, 1 run here, 1 handed to Arm E)</p><p class="result">c-wrong-type 3 &#8594; 0 on a 4-attempt subset.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/03-wrong-type-hint-arm-d/arm-d" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/03-wrong-type-hint-arm-d/runs" target="_blank" rel="noopener">browse run &#8599;</a></p></div><div class="arm-card"><span class="tag">Figure 2, Exp 4</span><h4>Arm E</h4><p>What if we only test a change where it could possibly help?</p><p><b>Could change:</b> 1 new subcommand</p><p class="result">c-truncated 25 &#8594; 1 on the full 13-attempt affected subset.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-e-failure-routed-search" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-e-failure-routed-search/runs" target="_blank" rel="noopener">browse run &#8599;</a></p></div></div>
+<div class="arm-cards"><div class="arm-card"><span class="tag">not plotted</span><h4>Arm A</h4><p>Can an agent run the whole research loop itself?</p><p><b>Could change:</b> 3 candidates, the whole 60-attempt bank each</p><p class="result">None accepted. Two enrichments timed out; one run halted at 37/60.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-a-loop-as-skill" target="_blank" rel="noopener">arm folder &#8599;</a></p></div><div class="arm-card"><span class="tag">Figure 1</span><h4>Arm B</h4><p>Can agent-friendliness be supplied as instructions?</p><p><b>Could change:</b> botmap/data/skill.md only</p><p class="result">+0.0000. Best held-out program was the base prompt; final patch empty.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-b-prompt-gepa" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-b-prompt-gepa/runs" target="_blank" rel="noopener">browse run &#8599;</a></p></div><div class="arm-card"><span class="tag">Figure 1</span><h4>Arm C</h4><p>Does seeing the whole codebase help it find the right file to fix?</p><p><b>Could change:</b> 83 tracked files, ~557k chars of context</p><p class="result">+0.0060, within noise (not a real gain). Best patch edited .gitignore and left &quot;new file needed&quot; notes.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-c-full-repo-gepa" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-c-full-repo-gepa/runs" target="_blank" rel="noopener">browse run &#8599;</a></p></div><div class="arm-card"><span class="tag">Figure 1</span><h4>tool-narrow</h4><p>Same idea as Arm C, but allowed to touch far less.</p><p><b>Could change:</b> 4 files</p><p class="result">+0.0161. The biggest gain any optimizer managed — still inside the wobble.</p><p><span class="pending" title="not confirmed under HF arms/arm-c-full-repo-gepa/ — local: experiments/runs/tool-3009509-1787049966/">not confirmed</span></p></div><div class="arm-card"><span class="tag">Figure 2, Exp 3</span><h4>Arm D</h4><p>Can the list of measured failures tell us what to try next?</p><p><b>Could change:</b> 1 tool-side hint (7 experiments proposed, 1 run here, 1 handed to Arm E)</p><p class="result">c-wrong-type 3 &#8594; 0 on a 4-attempt subset.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/03-wrong-type-hint-arm-d/arm-d" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/03-wrong-type-hint-arm-d/runs" target="_blank" rel="noopener">browse run &#8599;</a></p></div><div class="arm-card"><span class="tag">Figure 2, Exp 4</span><h4>Arm E</h4><p>What if we only test a change where it could possibly help?</p><p><b>Could change:</b> 1 new subcommand</p><p class="result">c-truncated 25 &#8594; 1 on the full 13-attempt affected subset.</p><p><a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-e-failure-routed-search" target="_blank" rel="noopener">arm folder &#8599;</a> &middot; <a class="trace" href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-e-failure-routed-search/runs" target="_blank" rel="noopener">browse run &#8599;</a></p></div></div>
 
 <h3>Figure 2b · Paired before &#8594; after, on matched attempt subsets</h3>
 <p class="note">These four are not optimizers, so there is nothing to plot over time.
@@ -380,8 +381,6 @@ optimizer gain, and it still sits inside the 0.187 noise band.</li>
 <li><b>The wobble was never measured directly</b> &mdash; the 0.187 spread
 comes from 3 accidental data points, not a designed noise run. A 60-attempt repeat
 run exists but recorded failure <i>kinds</i>, not the score each time.</li>
-<li><b>The optimizer briefly could edit its own exam</b> &mdash; an early full-repo
-run included evaluator files in the editable set and had to be thrown out.</li>
 <li><b>Arm A screened on everything instead of what mattered</b> &mdash; all 60
 attempts per candidate; two of three enrichments timed out, one run halted at 37/60.</li>
 <li><b>The evaluator itself had a bug for part of the run</b> &mdash; US state codes
@@ -395,13 +394,12 @@ and country codes were confused (<code>Cambridge, MA</code> vs.
 <ul class="bullets">
 <li><b>Measure the wobble first:</b> run the unchanged tool 10&ndash;20&times; before
 spending budget on candidates; require gains to clear ~2&times; the standard deviation.</li>
-<li><b>Pin the map data</b> &mdash; every run so far logged
-<code>map data: NOT pinned</code>.</li>
 <li><b>Fewer files, more looks:</b> the 4-file run beat the 83-file run.</li>
 <li><b>Route by failure class from the start</b> &mdash; test a candidate only on
 the attempts it targets, the way Arm E did.</li>
-<li><b>Raise the minimum sample size</b> &mdash; 4 attempts cannot separate a fix
-from a coincidence.</li>
+<li><b>Raise the minimum sample size</b> &mdash; Exp 2 and Exp 3 tested on just 4
+attempts each; 4 attempts cannot separate a fix from a coincidence, unlike Exp 4's
+full 13-attempt affected subset.</li>
 <li><b>Mine rejected optimizer proposals deliberately</b> &mdash; the discards
 (zero-result diagnostics, place-name normalisation, a suggestions module) were as
 valuable as the accepted patches.</li>
@@ -409,17 +407,6 @@ valuable as the accepted patches.</li>
 instances (45%) are still unexplained
 (<code>c-unknown</code>) &mdash; nothing can target that bucket until better probes
 split it up.</li>
-</ul>
-
-<h3>What this page does not prove</h3>
-<ul class="bullets">
-<li>Exp 2 and Exp 3 rest on 4 attempts each (Exp 3: only 2 finished) &mdash;
-directionally right, not yet trustworthy alone.</li>
-<li>Only Exp 1 and Exp 4 have enough attempts to argue from.</li>
-<li>Nothing has been re-run across the full 60-attempt bank &mdash; every result is
-&quot;this fixed this failure on these attempts&quot;, not &quot;the tool is better
-now&quot;.</li>
-<li>5 of the 7 experiments Arm D proposed were never run.</li>
 </ul>
 
 

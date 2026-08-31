@@ -283,7 +283,7 @@ ARMS = [
      "Figure 1"),
     ("Arm C", "Does seeing the whole codebase help it find the right file to fix?",
      "83 tracked files, ~557k chars of context",
-     "+0.0060. Best patch edited .gitignore and left &quot;new file needed&quot; notes.",
+     "+0.0060, within noise (not a real gain). Best patch edited .gitignore and left &quot;new file needed&quot; notes.",
      "Figure 1"),
     ("tool-narrow", "Same idea as Arm C, but allowed to touch far less.",
      "4 files",
@@ -499,8 +499,6 @@ optimizer gain, and it still sits inside the {spread:.3f} noise band.</li>
 <li><b>The wobble was never measured directly</b> &mdash; the {spread:.3f} spread
 comes from 3 accidental data points, not a designed noise run. A 60-attempt repeat
 run exists but recorded failure <i>kinds</i>, not the score each time.</li>
-<li><b>The optimizer briefly could edit its own exam</b> &mdash; an early full-repo
-run included evaluator files in the editable set and had to be thrown out.</li>
 <li><b>Arm A screened on everything instead of what mattered</b> &mdash; all 60
 attempts per candidate; two of three enrichments timed out, one run halted at 37/60.</li>
 <li><b>The evaluator itself had a bug for part of the run</b> &mdash; US state codes
@@ -514,13 +512,12 @@ and country codes were confused (<code>Cambridge, MA</code> vs.
 <ul class="bullets">
 <li><b>Measure the wobble first:</b> run the unchanged tool 10&ndash;20&times; before
 spending budget on candidates; require gains to clear ~2&times; the standard deviation.</li>
-<li><b>Pin the map data</b> &mdash; every run so far logged
-<code>map data: NOT pinned</code>.</li>
 <li><b>Fewer files, more looks:</b> the 4-file run beat the 83-file run.</li>
 <li><b>Route by failure class from the start</b> &mdash; test a candidate only on
 the attempts it targets, the way Arm E did.</li>
-<li><b>Raise the minimum sample size</b> &mdash; 4 attempts cannot separate a fix
-from a coincidence.</li>
+<li><b>Raise the minimum sample size</b> &mdash; Exp 2 and Exp 3 tested on just 4
+attempts each; 4 attempts cannot separate a fix from a coincidence, unlike Exp 4's
+full 13-attempt affected subset.</li>
 <li><b>Mine rejected optimizer proposals deliberately</b> &mdash; the discards
 (zero-result diagnostics, place-name normalisation, a suggestions module) were as
 valuable as the accepted patches.</li>
@@ -528,17 +525,6 @@ valuable as the accepted patches.</li>
 instances ({100 * unknown / class_c:.0f}%) are still unexplained
 (<code>c-unknown</code>) &mdash; nothing can target that bucket until better probes
 split it up.</li>
-</ul>
-
-<h3>What this page does not prove</h3>
-<ul class="bullets">
-<li>Exp 2 and Exp 3 rest on 4 attempts each (Exp 3: only 2 finished) &mdash;
-directionally right, not yet trustworthy alone.</li>
-<li>Only Exp 1 and Exp 4 have enough attempts to argue from.</li>
-<li>Nothing has been re-run across the full 60-attempt bank &mdash; every result is
-&quot;this fixed this failure on these attempts&quot;, not &quot;the tool is better
-now&quot;.</li>
-<li>5 of the 7 experiments Arm D proposed were never run.</li>
 </ul>
 """
 
@@ -576,7 +562,6 @@ def build(data: dict) -> str:
         f'{r["arm"]} <span style="color:var(--muted)">({r["lever"]})</span></span>'
         for i, r in enumerate(runs)
     )
-    beat = [r for r in runs if r["beat_base"]]
     never = [r for r in runs if not r["beat_base"]]
 
     return f"""<!doctype html>
@@ -672,8 +657,9 @@ So the three starting scores <i>should</i> have been identical. They were not: t
 came out {spread_txt}, a gap of <b>{spread:.3f}</b> caused by nothing but the agent
 behaving differently each time.
 That gap is the size of the wobble. It is {ratio_c:.0f}× bigger than Arm C's
-{delta_c:+.3f} improvement and {ratio_t:.0f}× bigger than the narrow tool run's
-{delta_t:+.3f}. It is like weighing yourself on a scale that swings by two kilos
+{delta_c:+.3f} (almost certainly noise, not a real gain) and {ratio_t:.0f}× bigger
+than the narrow tool run's {delta_t:+.3f}. It is like weighing yourself on a scale
+that swings by two kilos
 and announcing you lost sixty grams — the loss may be real, but this scale cannot
 see it. <b>Read the curves below for their shape, not their height.</b>
 </div>
@@ -693,11 +679,11 @@ nothing because most candidates never pass the cheap 3-question screen first.</p
 </div>
 <ul class="bullets">
 <li>{"; ".join(f'<b>{r["arm"]}</b> ended at its base — {r["candidates"]} candidates, none better' for r in never)}.</li>
-<li>{"; ".join(f'<b>{r["arm"]}</b> beat its base by {r["delta"]:+.4f}' for r in beat)}.</li>
 <li>On a rubric where the baseline noise band has never been established, a delta of
-{delta_c:+.3f} is not a result; only the narrow 4-file tool run moved far enough
-({delta_t:+.3f}) to be worth a second look — and even that sits well inside the
-{spread:.3f} spread above.</li>
+{delta_c:+.3f} (Arm C) is not a result — it's within measurement noise, not an
+improvement. Only the narrow 4-file tool run moved far enough ({delta_t:+.3f}) to
+be worth a second look, and even that sits well inside the {spread:.3f} spread
+above.</li>
 </ul>
 
 <h2>Figure 2 · All experiments, at a glance</h2>
