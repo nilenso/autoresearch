@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What makes a command-line tool easier for AI agents?</title>
+<style>
+:root{
+  color-scheme:light dark;
+  --bg:#f7f7f4;--panel:#ffffff;--text:#11110f;--muted:#5f5e58;--faint:#8d8b83;
+  --border:#dcdad2;--grid:#e8e6df;--blue:#2a78d6;--orange:#df6435;--green:#199b70;
+  --blue2:#7aaee7;--ink:#222;--danger:#a94925;
+}
+@media(prefers-color-scheme:dark){:root{--bg:#10100f;--panel:#191918;--text:#f5f5f1;--muted:#c0beb5;--faint:#8e8c84;--border:#33322f;--grid:#2a2927;--blue:#4f98eb;--orange:#e6784e;--green:#25ae82;--blue2:#78aee9;--ink:#eee;--danger:#ef8b67}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:var(--blue);text-decoration-thickness:1px;text-underline-offset:2px}
+main{max-width:940px;margin:0 auto;padding:56px 24px 88px}
+header{margin-bottom:52px}
+h1{font-size:clamp(34px,6vw,58px);line-height:1.04;letter-spacing:-.035em;margin:0 0 18px;max-width:850px}
+.dek{font-size:20px;line-height:1.5;color:var(--muted);max-width:760px;margin:0 0 20px}
+.meta{font-size:13px;color:var(--faint)}
+.meta a{color:inherit}
+h2{font-size:28px;line-height:1.2;letter-spacing:-.02em;margin:64px 0 12px}
+h3{font-size:20px;line-height:1.3;margin:32px 0 8px}
+p{margin:10px 0 16px}
+strong{font-weight:700}
+.lead{font-size:18px;color:var(--muted);max-width:780px}
+.callout{margin:30px 0;padding:20px 22px;border-left:4px solid var(--orange);background:var(--panel);border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.callout .big{font-size:24px;line-height:1.35;margin:0 0 8px;color:var(--text)}
+.small{font-size:13px;color:var(--faint)}
+.figure{background:var(--panel);border:1px solid var(--border);padding:20px;margin:22px 0 12px}
+.figure h3{margin:0 0 2px;font-size:17px}
+.figure .caption{color:var(--muted);font-size:13px;margin:0 0 16px}
+.figure svg{display:block;width:100%;height:auto;overflow:visible}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;color:var(--muted);font-size:13px}
+.legend span{display:inline-flex;align-items:center;gap:7px}.sw{display:inline-block;width:18px;height:3px}.dot{width:9px;height:9px;border-radius:50%}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}
+.card{background:var(--panel);border:1px solid var(--border);padding:18px}
+.card .kicker{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:700}
+.card h3{margin:4px 0 8px;font-size:18px}.card p{font-size:14px;margin:7px 0;color:var(--muted)}
+.card .result{color:var(--text);font-weight:700}
+.results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+.result-card{background:var(--panel);border:1px solid var(--border);padding:18px}.result-card .num{font-size:32px;font-weight:760;letter-spacing:-.03em}.result-card p{font-size:14px;color:var(--muted)}
+.trace{font-size:13px}
+hr{border:0;border-top:1px solid var(--border);margin:56px 0}
+ul{padding-left:21px}li{margin:8px 0}
+.footnotes{font-size:13px;color:var(--muted)}
+.pill{display:inline-block;font-size:12px;border:1px solid var(--border);padding:2px 7px;border-radius:999px;color:var(--muted);vertical-align:1px}
+@media(max-width:760px){main{padding:36px 18px 64px}.grid3,.results{grid-template-columns:1fr}h2{margin-top:48px}.figure{padding:14px}}
+@media print{body{background:#fff;color:#111}.figure,.card,.result-card,.callout{break-inside:avoid}a{color:#111}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>What Makes a Command-Line Tool Easier for AI Agents to Use?</h1>
+  <p class="lead">I wanted to understand a simple question:</p>
+  <p class="dek"><strong>What makes a command-line tool easy for an AI agent to use?</strong></p>
+  <p>The tool I studied is <a href="https://github.com/dbreunig/botmap" target="_blank" rel="noopener"><code>botmap</code></a>, a command-line interface for querying map data. An AI agent receives a question in plain English and access to a shell. It has to figure out which commands to run, interpret the results, recover from mistakes, and eventually answer the question.</p>
+  <p>I recorded every command the agent ran, every result it saw, how long it took, and whether it eventually reached the right answer.</p>
+  <p class="meta">Study based on <code>botmap</code> commit <code>3009509</code> · baseline: 60 attempts · generated from the project’s recorded runs. <a href="https://huggingface.co/datasets/nilenso/autoresearch" target="_blank" rel="noopener">Dataset and traces on Hugging Face ↗</a></p>
+</header>
+
+<section>
+<h2>The first surprise: “did it error?” is a weak test</h2>
+<p>I needed a way to judge whether the tool helped or hindered that process. A simple success/error check missed important behavior. Some failed commands were useful because they explained what to try next. Some commands <em>succeeded</em> while returning incomplete or misleading results.</p>
+
+<div class="figure">
+  <h3>Baseline: 500 tool calls</h3>
+  <p class="caption">Most calls were clean. Silent wrong answers were the largest single failure category.</p>
+  <svg viewBox="0 0 820 132" role="img" aria-label="Baseline call outcomes">
+    <text x="0" y="18" fill="var(--muted)" font-size="13">Share of all calls</text>
+    <rect x="0" y="40" width="622" height="34" fill="var(--blue2)"/><rect x="622" y="40" width="88" height="34" fill="var(--orange)"/><rect x="710" y="40" width="61" height="34" fill="var(--blue)"/><rect x="771" y="40" width="24" height="34" fill="var(--green)"/><rect x="795" y="40" width="5" height="34" fill="var(--faint)"/>
+    <text x="12" y="62" fill="#111" font-size="13" font-weight="700">Clean 389 (78%)</text>
+    <text x="622" y="96" fill="var(--orange)" font-size="12">Silent wrong 55 (11%)</text>
+    <text x="710" y="114" fill="var(--blue)" font-size="12">Hard fail 38</text>
+  </svg>
+  <div class="legend"><span><i class="sw dot" style="background:var(--orange)"></i>silent wrong</span><span><i class="sw dot" style="background:var(--blue)"></i>hard failure</span><span><i class="sw dot" style="background:var(--green)"></i>guided failure</span></div>
+</div>
+
+<p>Across the baseline run, there were 111 failure instances. <strong>55 of them were silent failures</strong>: the command looked successful and still misled the agent. A conventional “did the command error?” test would have missed every one of them.</p>
+<p>Two problems dominated those silent failures. In 25 cases, the tool returned only part of a long list and the agent read it as complete. In another 25, the tool returned an empty result without enough information to explain why.</p>
+<p class="trace"><a href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/00-baseline-agenteval/runs" target="_blank" rel="noopener">Browse the baseline traces ↗</a></p>
+</section>
+
+<section>
+<h2>Then the measurement itself became the problem</h2>
+<p>I ran the unchanged tool several times on exactly the same five evaluation questions. Because nothing had changed, the starting score should have been roughly the same each time.</p>
+
+<div class="callout">
+  <p class="big"><strong>The unchanged system scored anywhere from 0.576 to 0.764.</strong></p>
+  <p>That is a spread of <strong>0.187</strong> caused by the agent behaving differently from run to run. The automated improvements I measured later were +0.006 and +0.016—far smaller than that natural variation.</p>
+</div>
+
+<p>It is like weighing something on a scale that swings by two kilograms and then announcing a sixty-gram improvement. The improvement might be real. This particular measurement cannot show it convincingly.</p>
+<p>This changed how I interpreted the optimizer runs. Their curves are useful for understanding <em>how the search behaved</em>. Their final heights provide weak evidence for small improvements.</p>
+</section>
+
+<section>
+<h2>What the automated optimizer tried</h2>
+<p>I used GEPA as an automated optimizer: it proposes a change, tests it on a small screening set, and only spends more evaluation budget on candidates that look promising.</p>
+
+<div class="grid3">
+  <div class="card"><div class="kicker">Instructions only</div><h3>Change the prompt</h3><p>The optimizer could rewrite one instruction file. The tool code stayed fixed.</p><p class="result">Result: +0.000</p><p>Five candidates were proposed. None beat the starting version.</p><p class="trace"><a href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-b-prompt-gepa/runs" target="_blank" rel="noopener">Trace ↗</a></p></div>
+  <div class="card"><div class="kicker">Broad code search</div><h3>Change 83 files</h3><p>The optimizer could edit almost the entire codebase.</p><p class="result">Result: +0.006</p><p>The change is well inside the observed measurement noise.</p><p class="trace"><a href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-c-full-repo-gepa/runs" target="_blank" rel="noopener">Trace ↗</a></p></div>
+  <div class="card"><div class="kicker">Narrow code search</div><h3>Change 4 files</h3><p>The same basic idea used a much smaller search area.</p><p class="result">Result: +0.016</p><p>This was the largest optimizer gain, and it still sits inside the 0.187 score spread.</p></div>
+</div>
+
+<div class="figure">
+<h3>Loss during automated optimization</h3>
+<p class="caption">Loss = 1 − score, so lower is better. The dashed line is the starting baseline. Hollow dots are candidates that received a full evaluation. The solid line is the best loss retained so far. Iterations without a hollow dot did not produce a full candidate score.</p>
+<svg viewBox="0 0 820 400" role="img" aria-label="Optimizer loss trajectories showing starting baseline, fully evaluated candidates, and best-so-far loss">
+  <g stroke="var(--grid)" stroke-width="1">
+    <line x1="70" y1="300" x2="740" y2="300"/><line x1="70" y1="258.3" x2="740" y2="258.3"/><line x1="70" y1="216.7" x2="740" y2="216.7"/><line x1="70" y1="175" x2="740" y2="175"/><line x1="70" y1="133.3" x2="740" y2="133.3"/><line x1="70" y1="91.7" x2="740" y2="91.7"/><line x1="70" y1="50" x2="740" y2="50"/>
+  </g>
+  <g fill="var(--faint)" font-size="12">
+    <text x="40" y="304">0.0</text><text x="40" y="262.3">0.1</text><text x="40" y="220.7">0.2</text><text x="40" y="179">0.3</text><text x="40" y="137.3">0.4</text><text x="40" y="95.7">0.5</text><text x="40" y="54">0.6</text>
+    <text x="70" y="325">0</text><text x="153" y="325">1</text><text x="236" y="325">2</text><text x="319" y="325">3</text><text x="402" y="325">4</text><text x="485" y="325">5</text><text x="568" y="325">6</text><text x="651" y="325">7</text><text x="734" y="325">8</text>
+    <text x="360" y="352">optimizer iteration</text><text transform="translate(16 210) rotate(-90)">loss</text>
+  </g>
+
+  <!-- Starting baseline reference -->
+  <g fill="none" stroke-width="1.5" stroke-dasharray="6 5" opacity=".7">
+    <line x1="70" y1="182.1" x2="651" y2="182.1" stroke="var(--blue)"/>
+    <line x1="70" y1="123.5" x2="651" y2="123.5" stroke="var(--orange)"/>
+    <line x1="70" y1="201.5" x2="734" y2="201.5" stroke="var(--green)"/>
+  </g>
+
+  <!-- Best-so-far loss retained by the optimizer -->
+  <polyline points="70,182.1 153,182.1 236,182.1 319,182.1 402,182.1 485,182.1 568,182.1 651,182.1" fill="none" stroke="var(--blue)" stroke-width="3"/>
+  <polyline points="70,123.5 153,123.5 236,123.5 319,123.5 402,123.5 485,123.5 568,126.0 651,126.0" fill="none" stroke="var(--orange)" stroke-width="3"/>
+  <polyline points="70,201.5 153,201.5 236,201.5 319,201.5 402,201.5 485,201.5 568,201.5 651,201.5 734,208.2" fill="none" stroke="var(--green)" stroke-width="3"/>
+
+  <!-- Baseline starting points -->
+  <g stroke="var(--panel)" stroke-width="2">
+    <circle cx="70" cy="182.1" r="5" fill="var(--blue)"/>
+    <circle cx="70" cy="123.5" r="5" fill="var(--orange)"/>
+    <circle cx="70" cy="201.5" r="5" fill="var(--green)"/>
+  </g>
+
+  <!-- Candidates that received a full evaluation -->
+  <g fill="var(--panel)" stroke-width="2.5">
+    <circle cx="236" cy="140.0" r="5" stroke="var(--blue)"><title>instructions only · iteration 2 · loss 0.384</title></circle>
+    <circle cx="485" cy="89.5" r="5" stroke="var(--blue)"><title>instructions only · iteration 5 · loss 0.505</title></circle>
+    <circle cx="568" cy="100.9" r="5" stroke="var(--blue)"><title>instructions only · iteration 6 · loss 0.478</title></circle>
+    <circle cx="651" cy="173.2" r="5" stroke="var(--blue)"><title>instructions only · iteration 7 · loss 0.304</title></circle>
+
+    <circle cx="319" cy="83.2" r="5" stroke="var(--orange)"><title>83 files · iteration 3 · loss 0.520</title></circle>
+    <circle cx="568" cy="126.0" r="5" stroke="var(--orange)"><title>83 files · iteration 6 · loss 0.418</title></circle>
+    <circle cx="651" cy="95.6" r="5" stroke="var(--orange)"><title>83 files · iteration 7 · loss 0.491</title></circle>
+
+    <circle cx="485" cy="144.3" r="5" stroke="var(--green)"><title>4 files · iteration 5 · loss 0.374</title></circle>
+    <circle cx="734" cy="208.2" r="5" stroke="var(--green)"><title>4 files · iteration 8 · loss 0.220</title></circle>
+  </g>
+
+  <!-- Values beside evaluated candidates -->
+  <g font-size="10.5" fill="var(--faint)">
+    <text x="243" y="136">.384</text><text x="492" y="85">.505</text><text x="575" y="97">.478</text><text x="658" y="170">.304</text>
+    <text x="326" y="79">.520</text><text x="575" y="139">.418</text><text x="658" y="92">.491</text>
+    <text x="492" y="140">.374</text><text x="700" y="222">.220</text>
+  </g>
+
+  <g font-size="12" font-weight="700">
+    <text x="82" y="177" fill="var(--blue)">baseline .283</text>
+    <text x="82" y="118" fill="var(--orange)">baseline .424</text>
+    <text x="82" y="216" fill="var(--green)">baseline .236</text>
+  </g>
+  <text x="665" y="177" fill="var(--blue)" font-size="13" font-weight="700">instructions only</text>
+  <text x="665" y="121" fill="var(--orange)" font-size="13" font-weight="700">83 files</text>
+  <text x="650" y="235" fill="var(--green)" font-size="13" font-weight="700">4 files</text>
+</svg>
+<div class="legend"><span><i class="sw" style="background:var(--blue)"></i>instructions only</span><span><i class="sw" style="background:var(--orange)"></i>83 editable files</span><span><i class="sw" style="background:var(--green)"></i>4 editable files</span><span>– – starting baseline</span><span>○ fully evaluated candidate</span><span>— best so far</span></div>
+</div>
+
+<p>Across the three optimizer runs, 186 evaluations produced only nine candidates that received a full test. Seven of those nine scored worse than the version they started from. The broadest search had 83 editable files and only a handful of serious evaluations—a very large search space for a very small budget.</p>
+</section>
+
+<section>
+<h2>The targeted fixes were much easier to learn from</h2>
+<p>Instead of asking, “Can this change improve one overall score?”, I tried a narrower question: <strong>“Does this particular failure stop happening?”</strong></p>
+<p>That made both the engineering and the measurement more concrete.</p>
+
+<div class="results">
+  <div class="result-card"><div class="num">13 → 5</div><strong>Warn when a list is incomplete</strong><p>A partial list was being mistaken for a complete answer. Making truncation explicit reduced the targeted failure by 62% across six attempts.</p><p class="trace"><a href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/01-categories-truncation-warning/runs" target="_blank" rel="noopener">Browse traces ↗</a></p></div>
+  <div class="result-card"><div class="num">2 → 0</div><strong>Point to the correct field</strong><p>A small hint eliminated the observed wrong-field failures in this four-attempt sample. The sample is too small to call conclusive.</p><p class="trace"><a href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/02-count-wrong-column-hint/runs" target="_blank" rel="noopener">Browse traces ↗</a></p></div>
+  <div class="result-card"><div class="num">3 → 0</div><strong>Point to the correct data type</strong><p>The hint moved the targeted failure in the right direction. The sample had four attempts, and only two completed. I treat this as provisional.</p><p class="trace"><a href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/03-wrong-type-hint-arm-d/runs" target="_blank" rel="noopener">Browse traces ↗</a></p></div>
+  <div class="result-card"><div class="num">25 → 1</div><strong>Add category search</strong><p>Agents repeatedly struggled to discover valid category names. Adding <code>botmap categories --search TERM</code> reduced that failure by 96% across all 13 affected attempts.</p><p class="trace"><a href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-e-failure-routed-search/runs" target="_blank" rel="noopener">Browse traces ↗</a></p></div>
+</div>
+
+<div class="figure">
+<h3>Targeted failures before and after each change</h3>
+<p class="caption">Each pair is measured on the same affected attempts. These counts are easier to interpret than tiny changes in a noisy overall score.</p>
+<svg viewBox="0 0 820 300" role="img" aria-label="Targeted failure reductions">
+  <g fill="var(--text)" font-size="13">
+    <text x="0" y="50">Incomplete-list warning</text><text x="0" y="112">Correct-field hint</text><text x="0" y="174">Correct-type hint</text><text x="0" y="236">Category search</text>
+  </g>
+  <g>
+    <rect x="180" y="28" width="312" height="16" fill="var(--blue2)"/><rect x="180" y="49" width="120" height="16" fill="var(--blue)"/>
+    <rect x="180" y="90" width="48" height="16" fill="var(--blue2)"/><rect x="180" y="111" width="2" height="16" fill="var(--blue)"/>
+    <rect x="180" y="152" width="72" height="16" fill="var(--blue2)"/><rect x="180" y="173" width="2" height="16" fill="var(--blue)"/>
+    <rect x="180" y="214" width="600" height="16" fill="var(--blue2)"/><rect x="180" y="235" width="24" height="16" fill="var(--blue)"/>
+  </g>
+  <g fill="var(--muted)" font-size="12"><text x="500" y="41">before 13</text><text x="308" y="62">after 5</text><text x="236" y="103">before 2</text><text x="190" y="124">after 0</text><text x="260" y="165">before 3</text><text x="190" y="186">after 0</text><text x="790" y="227" text-anchor="end">before 25</text><text x="212" y="248">after 1</text></g>
+</svg>
+<div class="legend"><span><i class="sw dot" style="background:var(--blue2)"></i>before</span><span><i class="sw dot" style="background:var(--blue)"></i>after</span></div>
+</div>
+</section>
+
+<section>
+<h2>Why the targeted approach worked better</h2>
+<p>The automated optimizer was being asked a broad question: <strong>“Can you make the overall score better?”</strong> That is hard when the overall score itself moves substantially between identical runs.</p>
+<p>The targeted experiments started from something more concrete: <strong>“Agents keep making this specific mistake.”</strong> From there I could ask what change might prevent that mistake, then test that change only where it was relevant.</p>
+<p>The difference is visible in the measurements:</p>
+<ul>
+  <li>Automated search: <strong>+0.000, +0.006, +0.016</strong> on an overall score whose observed run-to-run spread was <strong>0.187</strong>.</li>
+  <li>Targeted fixes: <strong>13 → 5, 2 → 0, 3 → 0, 25 → 1</strong> for specific, observable failures.</li>
+</ul>
+<p>These samples are too small to establish that every intervention will generalize. They make <em>what changed</em>, <em>why it changed</em>, and <em>which behavior to inspect next</em> much clearer.</p>
+</section>
+
+<section>
+<h2>What I would change in the next run</h2>
+<ul>
+  <li><strong>Measure natural variation first.</strong> Run the unchanged system repeatedly before spending evaluation budget on proposed improvements.</li>
+  <li><strong>Keep the editable area small.</strong> The four-file optimizer run was more promising than the 83-file run.</li>
+  <li><strong>Route tests by failure.</strong> If a change targets incomplete lists, evaluate it primarily on the attempts where incomplete lists caused trouble.</li>
+  <li><strong>Use larger samples for claims.</strong> A 2 → 0 or 3 → 0 result over four attempts can easily be coincidence.</li>
+  <li><strong>Improve diagnostics before optimization.</strong> Twenty-five of the 55 silent failures are still unexplained empty-result cases. A generic “unknown” bucket is too vague for an optimizer—or a person—to target well.</li>
+</ul>
+</section>
+
+<section>
+<h2>The larger takeaway</h2>
+<div class="callout">
+<p class="big"><strong>Make failures visible before trying to optimize them away.</strong></p>
+<p>The most useful loop in this study was: observe how agents fail → group similar failures → understand the cause → make a small targeted change → test it on the cases it was meant to fix.</p>
+</div>
+<p>For this project, a small search feature aimed at one recurring source of confusion reduced its target failure from <strong>25 cases to 1</strong>. That was much easier to trust and reason about than a tiny movement in a noisy aggregate score.</p>
+<p>The broader lesson is straightforward: <strong>to make software easier for AI agents to use, first make their failures understandable.</strong></p>
+</section>
+
+<hr>
+<section class="footnotes">
+<h3>Data and traces</h3>
+<p><a href="https://github.com/dbreunig/botmap" target="_blank" rel="noopener">botmap source on GitHub ↗</a> · <a href="https://huggingface.co/datasets/nilenso/autoresearch" target="_blank" rel="noopener">Full Hugging Face dataset ↗</a></p>
+<p>Baseline: <a href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/experiments/00-baseline-agenteval/runs" target="_blank" rel="noopener">runs ↗</a> · Instructions-only optimizer: <a href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-b-prompt-gepa/runs" target="_blank" rel="noopener">runs ↗</a> · Whole-codebase optimizer: <a href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-c-full-repo-gepa/runs" target="_blank" rel="noopener">runs ↗</a> · Category-search intervention: <a href="https://huggingface.co/datasets/nilenso/autoresearch/tree/main/agent-friendly-cli/arms/arm-e-failure-routed-search/runs" target="_blank" rel="noopener">runs ↗</a>.</p>
+</section>
+</main>
+</body>
+</html>
