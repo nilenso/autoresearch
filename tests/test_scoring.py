@@ -488,6 +488,60 @@ class TestBaselineSnapshotGuard:
         assert config.preflight(check_network=False, check_quota=False)["release"] == "not checked"
 
 
+class TestBaselineCompatibilityGuard:
+    """A yardstick scored under different rules or billed on a different
+    path is just as incomparable as one measured on stale map data --
+    caught for real: a cached baseline from before this project moved off
+    the subscription and off the proxy-v1 scoring stand-in almost got reused
+    as-is by a fresh openrouter/agenteval-v3 run.
+    """
+
+    def write_baseline(self, tmp_path, monkeypatch, **extra):
+        monkeypatch.setattr(config, "ROOT", tmp_path)
+        path = baseline.path_for("abc1234")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"sha": "abc1234", "questions": {}, **extra}))
+        return path
+
+    def test_a_baseline_scored_under_old_rules_stops_the_run(self, tmp_path, monkeypatch):
+        self.write_baseline(tmp_path, monkeypatch, correctness_impl="proxy-v1",
+                            agent_path="subscription")
+        with pytest.raises(ValueError, match="proxy-v1"):
+            config._check_baseline_compatibility("abc1234")
+
+    def test_a_baseline_on_the_subscription_stops_an_openrouter_run(self, tmp_path, monkeypatch):
+        self.write_baseline(tmp_path, monkeypatch, correctness_impl=config.CORRECTNESS_IMPL,
+                            agent_path="subscription")
+        with pytest.raises(ValueError, match="subscription"):
+            config._check_baseline_compatibility("abc1234")
+
+    def test_a_matching_baseline_is_waved_through(self, tmp_path, monkeypatch):
+        self.write_baseline(tmp_path, monkeypatch, correctness_impl=config.CORRECTNESS_IMPL,
+                            agent_path=config.agent_path())
+        assert "compatible" in config._check_baseline_compatibility("abc1234")
+
+    def test_a_baseline_written_before_these_fields_existed_is_waved_through(
+            self, tmp_path, monkeypatch):
+        # No correctness_impl/agent_path recorded at all: can't tell, so this
+        # follows the same "don't know is not the same as disagree" rule the
+        # release check already uses, rather than blocking every old file.
+        self.write_baseline(tmp_path, monkeypatch)
+        assert "compatible" in config._check_baseline_compatibility("abc1234")
+
+    def test_no_cached_baseline_is_not_an_error(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(config, "ROOT", tmp_path)
+        assert "no cached baseline" in config._check_baseline_compatibility("nosuch")
+
+    def test_preflight_surfaces_the_compatibility_check(self, tmp_path, monkeypatch):
+        self.write_baseline(tmp_path, monkeypatch, correctness_impl="proxy-v1")
+        monkeypatch.setattr(config, "ENV_FILE", tmp_path / "absent")
+        monkeypatch.setenv(config.REFLECTION_KEY_VAR, "sk-or-v1-fine")
+        monkeypatch.setattr(credits, "fetch",
+                            lambda key, **kw: credits.Balance(granted=100.0, used=0.0))
+        with pytest.raises(ValueError, match="proxy-v1"):
+            config.preflight(sha="abc1234")
+
+
 class TestNetworkGuard:
     """A flaky link does not add noise — it invents failures that aren't there.
 

@@ -10,6 +10,7 @@ back, so this stays free of cycles.
 
 from __future__ import annotations
 
+import json
 import os
 import statistics
 import subprocess
@@ -492,6 +493,45 @@ def _check_baseline_release(sha: str) -> str:
     return f"release {current}, matching the cached baseline"
 
 
+def _check_baseline_compatibility(sha: str) -> str:
+    """Refuse to reuse a yardstick scored under different rules or billed on
+    a different path -- the same lesson as the release check, for the other
+    two things that make a baseline and a candidate incomparable.
+
+    Caught in practice: a cached baseline from before this project moved off
+    the subscription and off the proxy-v1 scoring stand-in almost got reused
+    as-is by a fresh openrouter/agenteval-v3 run, which would have compared
+    every candidate against numbers that meant something else entirely, with
+    nothing about the run saying so.
+    """
+    from . import baseline
+
+    path = baseline.path_for(sha)
+    if not path.exists():
+        return "no cached baseline yet"
+    saved = json.loads(path.read_text())
+
+    problems = []
+    saved_impl = saved.get("correctness_impl")
+    if saved_impl and saved_impl != CORRECTNESS_IMPL:
+        problems.append(f"scored under {saved_impl!r}, current rules are {CORRECTNESS_IMPL!r}")
+    saved_path = saved.get("agent_path")
+    if saved_path and saved_path != agent_path():
+        problems.append(f"measured via {saved_path!r}, current agent path is {agent_path()!r}")
+
+    if problems:
+        tag = saved_impl or saved_path or "old"
+        move_to = path.with_name(f"{path.stem}.{tag}.STALE.json")
+        raise ValueError(
+            "the cached baseline is not comparable to what a fresh run would "
+            "produce: " + "; ".join(problems) + "\n"
+            f"  Move it aside -- keep it, it is still the right reference for "
+            f"runs made the old way -- and let a fresh one be measured:\n"
+            f"    mv {path} {move_to}"
+        )
+    return "compatible with current scoring and billing"
+
+
 # Everything importable in the tool, minus what should never be evolved in the
 # curated "wider than default" mode. Explicit full-repo mode bypasses this list.
 NEVER_EVOLVE = {
@@ -647,6 +687,7 @@ def preflight(needs_api_key: bool = True, sha: str | None = None,
     load_env()
     balance_note = _check_funding(needs_api_key)
     release_note = _check_baseline_release(sha) if sha else "not checked"
+    compat_note = _check_baseline_compatibility(sha) if sha else "not checked"
     # Last two, because they are the slowest and there is no point testing the
     # link or the quota if we already know the key or the yardstick is wrong.
     network_note = _check_network() if check_network else "not checked"
@@ -672,4 +713,5 @@ def preflight(needs_api_key: bool = True, sha: str | None = None,
             raise FileNotFoundError(problem)
     return {"repo": str(repo), "questions": str(QUESTIONS),
             "balance": balance_note, "release": release_note,
+            "compatibility": compat_note,
             "network": network_note, "quota": quota_note}
