@@ -694,7 +694,9 @@ class TestBaselineRetentionIsScoped:
             return []
 
         monkeypatch.setattr("autoresearch.runner.ask_repeatedly", fake_ask)
-        baseline.measure([QUESTION], tmp_path, "abc1234")
+        # force=True: this fake never produces a usable reading, and this
+        # test only cares about keep_dir plumbing, not completeness.
+        baseline.measure([QUESTION], tmp_path, "abc1234", force=True)
         assert seen["keep_dir"] == baseline.attempts_dir("abc1234")
 
     def test_attempts_live_beside_the_numbers_they_produced(self, tmp_path, monkeypatch):
@@ -713,7 +715,7 @@ class TestBaselineRetentionIsScoped:
 
         monkeypatch.setattr("autoresearch.runner.ask_repeatedly", fake_ask)
         chosen = tmp_path / "somewhere-else"
-        baseline.measure([QUESTION], tmp_path, "abc1234", keep_dir=chosen)
+        baseline.measure([QUESTION], tmp_path, "abc1234", keep_dir=chosen, force=True)
         assert seen["keep_dir"] == chosen
 
     def test_candidate_runs_do_not_inherit_baseline_retention(self):
@@ -729,3 +731,59 @@ class TestBaselineRetentionIsScoped:
         assert "Evaluator(lever, pool, reference, keep_dir=candidate_attempts)" in src
         # measure() must be called WITHOUT a keep_dir, so the two cannot share one.
         assert "baseline.measure(bank, tree, sha)" in src
+
+
+class TestBaselineFailsLoudOnPartialMeasurement:
+    """A partial baseline must never look complete.
+
+    This is exactly the quota-exhaustion failure mode that produced the
+    withdrawn 5/30 baseline — measured, saved, and nearly reused as a
+    yardstick before someone noticed 25 of 30 questions were missing.
+    """
+
+    def test_a_complete_measurement_saves_without_asking(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(config, "ROOT", tmp_path)
+        monkeypatch.setattr("autoresearch.runner.ask_repeatedly", lambda *a, **kw: [])
+        monkeypatch.setattr(baseline, "_summarise", lambda attempts: baseline.Reading(1, 2, 3))
+
+        readings = baseline.measure([QUESTION], tmp_path, "abc1234")
+
+        assert readings["q1"] == baseline.Reading(1, 2, 3)
+        assert baseline.path_for("abc1234").exists()
+
+    def test_any_skip_refuses_to_save_by_default(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(config, "ROOT", tmp_path)
+        monkeypatch.setattr("autoresearch.runner.ask_repeatedly", lambda *a, **kw: [])
+        monkeypatch.setattr(baseline, "_summarise", lambda attempts: None)
+
+        with pytest.raises(SystemExit, match="1/1"):
+            baseline.measure([QUESTION], tmp_path, "abc1234")
+
+        assert not baseline.path_for("abc1234").exists()
+
+    def test_force_saves_the_gap_and_records_it(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(config, "ROOT", tmp_path)
+        monkeypatch.setattr("autoresearch.runner.ask_repeatedly", lambda *a, **kw: [])
+        monkeypatch.setattr(baseline, "_summarise", lambda attempts: None)
+
+        readings = baseline.measure([QUESTION], tmp_path, "abc1234", force=True)
+
+        assert readings == {}
+        saved = json.loads(baseline.path_for("abc1234").read_text())
+        assert saved["skipped"] == ["q1"]
+
+    def test_load_refuses_a_baseline_saved_with_gaps(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(config, "ROOT", tmp_path)
+        monkeypatch.setattr("autoresearch.runner.ask_repeatedly", lambda *a, **kw: [])
+        monkeypatch.setattr(baseline, "_summarise", lambda attempts: None)
+        baseline.measure([QUESTION], tmp_path, "abc1234", force=True)
+
+        assert baseline.load("abc1234") is None
+
+    def test_load_still_serves_a_complete_baseline(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(config, "ROOT", tmp_path)
+        monkeypatch.setattr("autoresearch.runner.ask_repeatedly", lambda *a, **kw: [])
+        monkeypatch.setattr(baseline, "_summarise", lambda attempts: baseline.Reading(1, 2, 3))
+        baseline.measure([QUESTION], tmp_path, "abc1234")
+
+        assert baseline.load("abc1234")["q1"] == baseline.Reading(1, 2, 3)

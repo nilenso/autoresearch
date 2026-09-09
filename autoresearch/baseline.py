@@ -60,10 +60,20 @@ def attempts_dir(sha: str) -> Path:
 
 
 def load(sha: str) -> dict[str, Reading] | None:
+    """Reuse a saved baseline, or None if there isn't one -- or it's partial.
+
+    A baseline with anything in `skipped` was written with `force=True`,
+    which only exists for a deliberately-accepted partial measurement. It
+    must never be silently reused as a yardstick -- that's exactly how a
+    5-of-30 quota-exhaustion run once almost got compared against as if it
+    were complete.
+    """
     path = path_for(sha)
     if not path.exists():
         return None
     raw = json.loads(path.read_text())
+    if raw.get("skipped"):
+        return None
     return {k: Reading(**v) for k, v in raw["questions"].items()}
 
 
@@ -80,7 +90,7 @@ def saved_release(sha: str) -> str | None:
 
 
 def measure(questions: list[Question], tree: Path, sha: str,
-            keep_dir: Path | None = None) -> dict[str, Reading]:
+            keep_dir: Path | None = None, force: bool = False) -> dict[str, Reading]:
     """Run every question against the unchanged tool and save the result.
 
     Raw attempts are kept by default, which they are NOT for candidates. The
@@ -94,6 +104,14 @@ def measure(questions: list[Question], tree: Path, sha: str,
     about $15 and two hours. A baseline is measured once and read by
     everything downstream, so throwing its evidence away is the expensive
     choice, not the cheap one.
+
+    Refuses to save a partial baseline by default: a run that skips even one
+    question produced a broken measurement, not a smaller one, and writing
+    it anyway is exactly how a baseline once got silently measured on only
+    5 of 30 questions and nearly reused as a yardstick. Pass `force=True` to
+    accept a partial measurement deliberately (e.g. one question is known to
+    be flaky) -- it still gets saved, with `skipped` populated, but
+    `load()` will refuse to hand it back afterwards.
     """
     keep_dir = keep_dir or attempts_dir(sha)
     readings: dict[str, Reading] = {}
@@ -106,6 +124,15 @@ def measure(questions: list[Question], tree: Path, sha: str,
             skipped.append(q.id)
             continue
         readings[q.id] = reading
+
+    if skipped and not force:
+        raise SystemExit(
+            f"[baseline] refusing to save a partial baseline: could not measure "
+            f"{len(skipped)}/{len(questions)} question(s): {', '.join(skipped)}\n"
+            f"  This is what produced the withdrawn 5/30 baseline once already. "
+            f"Find out why these failed (quota, network, environment) and re-run, "
+            f"or pass force=True if the gap is genuinely expected and acceptable."
+        )
 
     out = path_for(sha)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -137,5 +164,6 @@ def measure(questions: list[Question], tree: Path, sha: str,
         )
     )
     if skipped:
-        print(f"[baseline] couldn't measure: {', '.join(skipped)}")
+        print(f"[baseline] saved WITH GAPS (force=True): couldn't measure "
+              f"{', '.join(skipped)} -- load() will refuse to reuse this")
     return readings
