@@ -84,22 +84,28 @@ cramming the code somewhere it does not belong to get the score up.
 """
 
 
+_STRUGGLE_LINE = (
+    " The goal is to reduce how much the assistant has to struggle or guess, "
+    "not just to get a correct answer eventually."
+)
+
+
 def _objective_text(lever: str) -> str:
     if lever == "tool":
         return (
             "Rewrite this command-line tool so an AI assistant, given a plain-English "
             "question about maps and nothing else, reliably works out the right command "
-            "on the first or second try."
+            "on the first or second try." + _STRUGGLE_LINE
         )
     if lever == config.WIDE_LEVER:
         return (
             "Rewrite this command-line tool's source and its instructions so an AI "
             "assistant, given nothing but a plain-English question about maps, "
-            "reliably works out the right command on the first or second try."
+            "reliably works out the right command on the first or second try." + _STRUGGLE_LINE
         )
     return (
         "Rewrite these instructions so an AI assistant reading them reliably works out "
-        "the right `botmap` command for a plain-English map question."
+        "the right `botmap` command for a plain-English map question." + _STRUGGLE_LINE
     )
 
 
