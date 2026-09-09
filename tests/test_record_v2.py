@@ -75,6 +75,7 @@ def test_build_record_populates_task_metadata_and_usage_from_the_question_and_at
     assert record.total_tokens == 1000
     assert record.duration_ms == 4500
     assert record.cost_usd == 0.12
+    assert record.completed is True
     # score/token_efficiency/wallclock_efficiency/route_judge are attached
     # later by the caller (see evaluator.py/baseline.py), not built here --
     # scoring this record needs the record itself as input.

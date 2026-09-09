@@ -44,6 +44,7 @@ def build_record(attempt: Attempt, *, question: Question | None = None,
         duration_ms=usage.duration_ms,
         cost_usd=usage.cost_usd,
         reasoning_trace=tuple(parse_reasoning_trace(transcript_path)) if transcript_path else (),
+        completed=attempt.completed,
     )
 
 

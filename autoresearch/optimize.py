@@ -23,9 +23,11 @@ Two rules keep the answer meaningful:
 from __future__ import annotations
 
 import argparse
+import difflib
 import json
 import os
 import time
+from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -122,6 +124,88 @@ def run_sabotage_gate() -> None:
         return classify(call, call.get("probes", ()))
 
     assert_sabotage_passes(classify_fixture, FIXTURES)
+
+
+class ProposalLedger:
+    """Records every proposal GEPA makes -- accepted or rejected -- to a
+    JSONL file: one line per proposal, per component, with the exact prompt
+    sent, the raw LM output, the full parent/new candidate text, a diff
+    between them, and the outcome.
+
+    GEPA already computes almost all of this internally
+    (CandidateProposal.metadata), but only forwards it to
+    self.experiment_tracker.log_table("proposals", ...) -- wandb/mlflow,
+    both off in this project (see TrackingConfig defaults) -- so none of it
+    reaches disk today without this. Deliberately no rationale/explanation
+    field: the reflection prompt template tells the model not to write one,
+    so this stays diff-only rather than inventing a "why" that isn't there.
+
+    Three separate callback events have to be correlated to build one line
+    -- on_proposal_start (has the parent's full text), on_proposal_end (has
+    the prompt/raw output/new text), and on_candidate_accepted/
+    on_candidate_rejected (has the outcome) -- stitched together here by
+    iteration, in the order they arrive within it (FIFO). Exact for this
+    project's actual usage, which proposes one candidate per iteration
+    (GEPA's default SingleMutationSampling); GEPA's protocol allows more than
+    one proposal per iteration in principle, and nothing in the callback
+    payloads names which proposal an outcome belongs to when that happens,
+    so FIFO pairing is the best available correlation, not a guess.
+    """
+
+    def __init__(self, path: Path):
+        self.path = path
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._parents: dict[int, list[dict[str, str]]] = defaultdict(list)
+        self._proposals: dict[int, list[dict]] = defaultdict(list)
+
+    def on_proposal_start(self, event: dict) -> None:
+        self._parents[event["iteration"]].append(event["parent_candidate"])
+
+    def on_proposal_end(self, event: dict) -> None:
+        self._proposals[event["iteration"]].append({
+            "prompts": event["prompts"],
+            "raw_lm_outputs": event["raw_lm_outputs"],
+            "new_instructions": event["new_instructions"],
+        })
+
+    def on_candidate_accepted(self, event: dict) -> None:
+        self._resolve(event["iteration"], accepted=True,
+                      score_before=None, score_after=event.get("new_score"))
+
+    def on_candidate_rejected(self, event: dict) -> None:
+        self._resolve(event["iteration"], accepted=False,
+                      score_before=event.get("old_score"), score_after=event.get("new_score"))
+
+    def _resolve(self, iteration: int, *, accepted: bool,
+                score_before: float | None, score_after: float | None) -> None:
+        proposals = self._proposals.get(iteration)
+        if not proposals:
+            return  # a merge or another non-reflective proposal path; not ours to log
+        proposal = proposals.pop(0)
+        parents = self._parents.get(iteration)
+        parent = parents.pop(0) if parents else {}
+
+        with self.path.open("a", encoding="utf-8") as f:
+            for component, new_text in proposal["new_instructions"].items():
+                old_text = parent.get(component, "")
+                diff = "\n".join(difflib.unified_diff(
+                    old_text.splitlines(), new_text.splitlines(),
+                    fromfile=f"{component} (parent)", tofile=f"{component} (proposed)",
+                    lineterm="",
+                ))
+                row = {
+                    "iteration": iteration,
+                    "component": component,
+                    "accepted": accepted,
+                    "score_before": score_before,
+                    "score_after": score_after,
+                    "prompt": proposal["prompts"].get(component, ""),
+                    "raw_lm_output": proposal["raw_lm_outputs"].get(component, ""),
+                    "parent_text": old_text,
+                    "new_text": new_text,
+                    "diff": diff,
+                }
+                f.write(json.dumps(row) + "\n")
 
 
 def run(lever: str, budget: int, iterations: int, holdout: float, reflection_lm: str,
@@ -224,6 +308,8 @@ def run(lever: str, budget: int, iterations: int, holdout: float, reflection_lm:
             context = "\n\n" + config.full_repo_context()
             print(f"[oa] full repo context enabled ({len(context):,} chars)")
 
+        ledger = ProposalLedger(run_dir / "gepa" / "proposals.jsonl")
+
         result = oa.optimize_anything(
             seed,
             evaluator=evaluate,
@@ -250,6 +336,7 @@ def run(lever: str, budget: int, iterations: int, holdout: float, reflection_lm:
                     display_progress_bar=True,
                 ),
                 reflection=oa.ReflectionConfig(reflection_lm=proposing_lm),
+                callbacks=[ledger],
             ),
         )
 
@@ -263,6 +350,19 @@ def run(lever: str, budget: int, iterations: int, holdout: float, reflection_lm:
                 f"expected the best candidate as a mapping of file -> contents, "
                 f"got {type(best).__name__}"
             )
+
+        # Every candidate's val score against the cumulative evaluation count
+        # at which it was discovered -- for the every-candidate loss plot
+        # (tools/figures). run_log.json's per-iteration entries don't carry
+        # this cleanly (only accepted candidates get a full valset eval), but
+        # GEPAResult already has it, so persist it here rather than trying to
+        # reverse-engineer it from the log afterward.
+        (run_dir / "candidate_scores.json").write_text(json.dumps({
+            "val_aggregate_scores": result.val_aggregate_scores,
+            "discovery_eval_counts": result.discovery_eval_counts,
+            "parents": result.parents,
+            "best_idx": result.best_idx,
+        }, indent=2))
 
         # Write each improved file out under its own name, so you can diff any
         # one of them against the original on its own.

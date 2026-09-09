@@ -86,6 +86,11 @@ class Record2:
     total_tokens: int = 0
     duration_ms: int = 0
     cost_usd: float = 0.0
+    # Whether the attempt produced an answer at all (Attempt.completed) --
+    # not the same as scoring well. Stored explicitly because "did this pass"
+    # (a report's pass-rate figure) shouldn't have to be re-derived from
+    # score.value, which can be low for a completed-but-wrong attempt too.
+    completed: bool = True
     # Assistant text/thinking blocks, tool_use, and tool_result events, in
     # order, extracted from the retained transcript.jsonl -- an extraction
     # gap this closes, not a new capture mechanism.
@@ -186,6 +191,8 @@ def validate(raw: dict[str, Any]) -> list[str]:
         route_judge = raw.get("route_judge")
         if route_judge is not None and not isinstance(route_judge, dict):
             problems.append("route_judge must be an object or null")
+    if "completed" in raw and not isinstance(raw.get("completed"), bool):
+        problems.append("completed must be a boolean")
 
     return problems
 
@@ -318,6 +325,7 @@ def _record_from_json(raw: dict[str, Any]) -> Record2:
         cost_usd=raw.get("cost_usd", 0.0),
         reasoning_trace=tuple(raw.get("reasoning_trace", ())),
         route_judge=raw.get("route_judge"),
+        completed=raw.get("completed", True),
     )
 
 

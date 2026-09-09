@@ -103,3 +103,18 @@ def test_wide_lever_gets_its_own_objective_not_the_prompt_levers():
 
     assert "source" in wide
     assert wide != optimize._objective_text("prompt")
+
+
+def test_optimizer_persists_candidate_scores_for_the_loss_figure():
+    """tools/figures needs every candidate's val score against the
+    cumulative evaluation count it was discovered at, for the
+    every-candidate loss plot. run_log.json's iteration entries don't carry
+    this cleanly -- confirm it's written from GEPAResult directly instead.
+    """
+    from autoresearch import optimize
+
+    src = inspect.getsource(optimize.run)
+
+    assert '"val_aggregate_scores": result.val_aggregate_scores' in src
+    assert '"discovery_eval_counts": result.discovery_eval_counts' in src
+    assert "candidate_scores.json" in src

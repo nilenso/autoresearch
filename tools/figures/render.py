@@ -120,6 +120,150 @@ def line_panel(runs: list[dict], *, invert: bool, title: str, subtitle: str) -> 
     )
 
 
+def candidate_loss_panel(points: list[dict], *, baseline_loss: float | None,
+                         best_idx: int | None, title: str, subtitle: str) -> str:
+    """Every candidate GEPA proposed, not just the best-so-far line.
+
+    Unlike line_panel (iteration on the x-axis, one run's best-so-far only),
+    this scatters every candidate's loss (1 - val score) against the actual
+    cumulative evaluation count it was discovered at -- the unit the paper's
+    own trajectory figures use, and the one --budget/max_metric_calls share
+    -- with the best-so-far step line traced through them and the baseline
+    drawn as a horizontal reference. Loss=0 (perfect) plots at the bottom and
+    loss=1 (worst) at the top, the same convention line_panel(invert=True)
+    already uses, so the line moving down reads as "getting better" in both.
+    """
+    max_evals = max((p["evaluations"] or 0) for p in points) if points else 1
+    max_evals = max_evals or 1
+    parts = [
+        f'<svg viewBox="0 0 {PANEL_W} {PANEL_H}" role="img" '
+        f'aria-label="{escape(title)}. {escape(subtitle)}" class="panel">'
+    ]
+
+    for t in range(6):
+        v = t / 5
+        y = _y(v)
+        parts.append(
+            f'<line x1="{M_L}" y1="{y:.1f}" x2="{PANEL_W - M_R}" y2="{y:.1f}" '
+            f'stroke="var(--grid)" stroke-width="1"/>'
+        )
+        parts.append(f'<text x="{M_L - 8}" y="{y + 3.5:.1f}" text-anchor="end" class="tick">{v:.1f}</text>')
+    for frac in (0, 0.25, 0.5, 0.75, 1.0):
+        ev = round(max_evals * frac)
+        x = M_L + (PANEL_W - M_L - M_R) * frac
+        parts.append(f'<text x="{x:.1f}" y="{PANEL_H - M_B + 16}" text-anchor="middle" class="tick">{ev}</text>')
+    parts.append(
+        f'<line x1="{M_L}" y1="{_y(0):.1f}" x2="{PANEL_W - M_R}" y2="{_y(0):.1f}" '
+        f'stroke="var(--axis)" stroke-width="1"/>'
+    )
+    parts.append(
+        f'<text x="{(M_L + PANEL_W - M_R) / 2:.0f}" y="{PANEL_H - 4}" '
+        f'text-anchor="middle" class="axis-title">Cumulative evaluations</text>'
+    )
+
+    def xf(evals: int | None) -> float:
+        return M_L + (PANEL_W - M_L - M_R) * ((evals or 0) / max_evals)
+
+    if baseline_loss is not None:
+        by = _y(baseline_loss)
+        parts.append(
+            f'<line x1="{M_L}" y1="{by:.1f}" x2="{PANEL_W - M_R}" y2="{by:.1f}" '
+            f'stroke="var(--series-2)" stroke-width="1.5" stroke-dasharray="4 3"/>'
+        )
+        parts.append(
+            f'<text x="{PANEL_W - M_R + 5:.1f}" y="{by + 3.5:.1f}" '
+            f'class="endlabel" fill="var(--series-2)">baseline</text>'
+        )
+
+    # Best-so-far step line through every candidate, in discovery order.
+    step_pts = [(xf(p["evaluations"]), _y(p["best_so_far"])) for p in points]
+    if step_pts:
+        d = " ".join(("M" if k == 0 else "L") + f"{x:.1f},{y:.1f}" for k, (x, y) in enumerate(step_pts))
+        parts.append(
+            f'<path d="{d}" fill="none" stroke="var(--series-1)" stroke-width="2" '
+            f'stroke-linejoin="round" stroke-linecap="round"/>'
+        )
+
+    # Every candidate as its own point -- not just the ones that improved.
+    for p in points:
+        cx, cy = xf(p["evaluations"]), _y(p["loss"])
+        is_best = p["candidate"] == best_idx
+        tip = (
+            f'Candidate {p["candidate"]} · {p["evaluations"]} evaluations so far'
+            f' · loss {p["loss"]:.4f}' + (" · BEST" if is_best else "")
+        )
+        r = 5.5 if is_best else 3.5
+        fill = "var(--series-3)" if is_best else "var(--series-1)"
+        parts.append(
+            f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r}" fill="{fill}" '
+            f'stroke="var(--surface-1)" stroke-width="2" class="dot" '
+            f'data-tip="{escape(tip)}"><title>{escape(tip)}</title></circle>'
+        )
+
+    parts.append("</svg>")
+    return (
+        f'<figure class="panel-fig"><figcaption><b>{escape(title)}</b>'
+        f'<span>{escape(subtitle)}</span></figcaption>{"".join(parts)}</figure>'
+    )
+
+
+def pass_rate_duration_bars(before: dict, after: dict | None, *,
+                            before_label: str = "Model before",
+                            after_label: str = "Model + learned skill after") -> str:
+    """Two small grouped bar charts: pass rate (%) and mean duration (s).
+
+    Separate charts rather than one dual-axis chart, so percentages and
+    seconds each get an axis that reads at face value -- matches the
+    paper's own Figure 2 shape (pass rate + avg duration, per configuration).
+    `after` is None when the run wasn't executed with --keep-runs, in which
+    case this renders the "before" bar alone and says why the other is
+    missing rather than inventing a number.
+    """
+    rows = [(before_label, before)]
+    if after is not None:
+        rows.append((after_label, after))
+
+    def bar_group(get_value, *, fmt, axis_label, max_value) -> str:
+        h = 60 * len(rows) + 30
+        parts = [f'<svg viewBox="0 0 {BAR_W} {h}" role="img" aria-label="{escape(axis_label)}" class="panel wide">']
+        span = BAR_W - BAR_L - BAR_R - 140
+        for i, (label, data) in enumerate(rows):
+            y = 14 + i * 60
+            value = get_value(data)
+            w = span * (value / max_value) if max_value else 0
+            parts.append(f'<text x="0" y="{y + 14}" class="rowlabel">{escape(label)}</text>')
+            parts.append(
+                f'<rect x="140" y="{y}" width="{max(w, 2):.1f}" height="26" rx="4" '
+                f'fill="var(--series-1)" class="dot" data-tip="{escape(label)}: {fmt(value)}"/>'
+            )
+            parts.append(f'<text x="{150 + w:.1f}" y="{y + 18}" class="endval">{fmt(value)}</text>')
+        parts.append("</svg>")
+        return "".join(parts)
+
+    pass_rate_svg = bar_group(
+        lambda d: 100 * d["pass_rate"], fmt=lambda v: f"{v:.1f}%",
+        axis_label="Pass rate", max_value=100,
+    )
+    max_duration = max(d["mean_duration_s"] for _, d in rows) or 1
+    duration_svg = bar_group(
+        lambda d: d["mean_duration_s"], fmt=lambda v: f"{v:.0f}s",
+        axis_label="Average duration", max_value=max_duration * 1.15,
+    )
+
+    missing_note = "" if after is not None else (
+        '<p class="note">No "after" data yet -- rerun the optimizer with '
+        '<code>--keep-runs</code> to keep the attempts this needs.</p>'
+    )
+    return (
+        f'<div class="grid">'
+        f'<figure class="panel-fig"><figcaption><b>Pass rate</b>'
+        f'<span>share of kept attempts that completed</span></figcaption>{pass_rate_svg}</figure>'
+        f'<figure class="panel-fig"><figcaption><b>Average duration</b>'
+        f'<span>mean resolution time, seconds</span></figcaption>{duration_svg}</figure>'
+        f'</div>{missing_note}'
+    )
+
+
 def paired_bars(rows: list[dict]) -> str:
     """Before/after as two bars per experiment, each row scaled to its own peak.
 

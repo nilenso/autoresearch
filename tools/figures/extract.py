@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import re
+import statistics
 from pathlib import Path
 
 # The three GEPA runs that carry a parsable run_log.txt, with the arm labels the
@@ -194,3 +195,101 @@ def collect(root: Path) -> dict:
             "subtype_counts": baseline["subtype_counts"],
         },
     }
+
+
+# ---------------------------------------------------------------------------
+# Live/current-run reporting. Distinct from everything above: those functions
+# are tied to the specific historical arms published in gepa-trajectories.html
+# (hardcoded run names, a text-log parser matching an older GEPA version).
+# These work against any run produced by the current codebase, reading the
+# structured JSON artifacts GEPA and this project's own scoring layer already
+# write, rather than parsing anything.
+# ---------------------------------------------------------------------------
+
+
+def candidate_loss_series(run_dir: Path, baseline_correctness: float | None = None) -> dict:
+    """Every candidate GEPA proposed, not just the best-so-far line.
+
+    Reads candidate_scores.json, written by optimize.py directly from the
+    GEPAResult it already has -- run_log.json's per-iteration entries don't
+    carry a val score for every candidate cleanly, since only accepted
+    candidates get a full valset evaluation.
+    """
+    data = json.loads((run_dir / "candidate_scores.json").read_text())
+    scores = data["val_aggregate_scores"]
+    eval_counts = data["discovery_eval_counts"]
+    parents = data.get("parents") or []
+
+    points = []
+    best_so_far = None
+    for idx, score in enumerate(scores):
+        loss = 1.0 - score
+        best_so_far = loss if best_so_far is None else min(best_so_far, loss)
+        points.append({
+            "candidate": idx,
+            "evaluations": eval_counts[idx] if idx < len(eval_counts) else None,
+            "loss": loss,
+            "best_so_far": best_so_far,
+            "parents": parents[idx] if idx < len(parents) else [],
+        })
+    return {
+        "points": points,
+        "best_idx": data.get("best_idx"),
+        "baseline_loss": (1.0 - baseline_correctness) if baseline_correctness is not None else None,
+    }
+
+
+def _record_files(attempts_dir: Path) -> list[Path]:
+    if not attempts_dir.is_dir():
+        return []
+    return sorted(attempts_dir.glob("*/record-v2.json"))
+
+
+def _load_records_tolerantly(files: list[Path]) -> list:
+    """Load every record-v2.json that actually parses, skipping the rest.
+
+    Unlike run_log.json (written once, atomically, when a run finishes),
+    each attempt's record-v2.json is written progressively while a run is
+    still going -- exactly the file --watch mode (run_report.py) rebuilds
+    against mid-run. contract.write() isn't atomic, so a rebuild can catch
+    one mid-write. Same tolerance trace.py::parse_calls() already applies to
+    a killed-mid-write commands.jsonl: skip what doesn't parse rather than
+    failing the whole read.
+    """
+    from autoresearch.agenteval.contract import load as load_record
+
+    records = []
+    for f in files:
+        try:
+            records.append(load_record(f))
+        except (json.JSONDecodeError, OSError):
+            continue
+    return records
+
+
+def pass_rate_and_duration(attempts_dir: Path) -> dict | None:
+    """Pass rate and mean resolution time across every kept attempt under a
+    directory -- a baseline's attempts_dir(sha) for "before", a GEPA run's
+    kept candidate_attempts for "after" (requires --keep-runs).
+
+    Reads record-v2.json directly rather than re-deriving from raw
+    transcripts: completed and duration_ms are already persisted there (see
+    agenteval/contract.py, autoresearch/evaluator.py and baseline.py).
+    None when the directory holds no readable records at all, so the caller
+    can say "no data" rather than plotting a misleading 0%.
+    """
+    records = _load_records_tolerantly(_record_files(attempts_dir))
+    if not records:
+        return None
+    passed = sum(1 for r in records if r.completed)
+    return {
+        "attempts": len(records),
+        "passed": passed,
+        "pass_rate": passed / len(records),
+        "mean_duration_s": statistics.mean(r.duration_ms for r in records) / 1000,
+    }
+
+
+def cost_rollup(attempts_dir: Path) -> float:
+    """Total cost_usd across every readable kept attempt under a directory."""
+    return sum(r.cost_usd for r in _load_records_tolerantly(_record_files(attempts_dir)))
