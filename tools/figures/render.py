@@ -9,6 +9,7 @@ figure ships a table view.
 
 from __future__ import annotations
 
+import json
 from html import escape
 
 SERIES = ["--series-1", "--series-2", "--series-3"]
@@ -350,3 +351,126 @@ def bar_legend(segments: list[dict], *, pct_of: float | None = None) -> str:
         for s in segments
     )
     return f'<div class="legend">{items}</div>'
+
+
+# ---------------------------------------------------------------------------
+# Agent traces -- what actually happened on individual attempts: the
+# commands run, the reasoning around them, and the judge's verdict. Colored
+# by outcome throughout (pass/fail, call ok/BAD, judge matched/partial/
+# deviated) so status reads at a glance rather than only in the tooltip text.
+# ---------------------------------------------------------------------------
+
+_PASS_COLOR = "#1baf7a"     # green
+_FAIL_COLOR = "#e0475a"     # red
+_PARTIAL_COLOR = "#e0a030"  # amber
+
+_VERDICT_COLOR = {"matched": _PASS_COLOR, "partial": _PARTIAL_COLOR, "deviated": _FAIL_COLOR}
+
+
+def attempt_trace_card(record) -> str:
+    """One attempt as a collapsible card: outcome, calls, reasoning trace,
+    judge verdict. `record` is an agenteval.contract.Record2.
+    """
+    border = _PASS_COLOR if record.completed else _FAIL_COLOR
+    status = "completed" if record.completed else "did not complete"
+    score_text = f'score {record.score:.3f}' if record.score is not None else "score n/a"
+    duration_text = f'{record.duration_ms / 1000:.0f}s' if record.duration_ms else "? s"
+
+    calls_html = "".join(_call_row(c) for c in record.calls) or (
+        '<div class="trace-empty">(no calls at all)</div>'
+    )
+
+    judge_html = ""
+    if record.route_judge:
+        rj = record.route_judge
+        color = _VERDICT_COLOR.get(rj.get("verdict"), "var(--muted)")
+        judge_html = (
+            f'<div class="trace-judge" style="border-left-color:{color}">'
+            f'<span class="trace-badge" style="background:{color}">{escape(str(rj.get("verdict")))}</span>'
+            f'<span class="trace-judge-score">{rj.get("adherence", 0):.2f} adherence</span>'
+            f'<p>{escape(str(rj.get("rationale", "")))}</p></div>'
+        )
+
+    reasoning_html = "".join(_reasoning_row(r) for r in record.reasoning_trace)
+    reasoning_section = (
+        f'<details class="trace-reasoning"><summary>Reasoning trace '
+        f'({len(record.reasoning_trace)} events)</summary>{reasoning_html}</details>'
+        if record.reasoning_trace else ""
+    )
+
+    return f"""<details class="trace-card" style="border-left-color:{border}">
+<summary>
+  <span class="trace-badge" style="background:{border}">{escape(status)}</span>
+  <b>{escape(record.question_id)}</b>
+  <span class="trace-meta">{escape(score_text)} &middot; {escape(duration_text)} &middot; ${record.cost_usd:.2f}</span>
+</summary>
+<p class="trace-question">{escape(record.question)}</p>
+<div class="trace-calls">{calls_html}</div>
+{judge_html}
+{reasoning_section}
+</details>"""
+
+
+def _call_row(call: dict) -> str:
+    ok = call.get("class") is None
+    color = _PASS_COLOR if ok else _FAIL_COLOR
+    argv = " ".join(str(a) for a in (call.get("argv") or []))
+    err = (call.get("stderr_head") or "").strip()
+    err_html = f'<div class="trace-err">{escape(err[:300])}</div>' if err and not ok else ""
+    return (
+        f'<div class="trace-call">'
+        f'<span class="trace-dot" style="background:{color}"></span>'
+        f'<code>botmap {escape(argv)}</code>'
+        f'<span class="trace-meta">exit {call.get("exit_code")}</span>'
+        f'{err_html}</div>'
+    )
+
+
+def _reasoning_row(event: dict) -> str:
+    kind = event.get("type")
+    if kind == "tool_use":
+        try:
+            input_text = json.dumps(event.get("input"))
+        except TypeError:
+            input_text = str(event.get("input") or "")
+        text = f'{event.get("name")}({input_text[:200]})'
+        return f'<div class="trace-event trace-event-tool">{escape(text)}</div>'
+    if kind == "tool_result":
+        return f'<div class="trace-event trace-event-result">{escape((event.get("content") or "")[:300])}</div>'
+    if kind == "thinking":
+        return f'<div class="trace-event trace-event-thinking">{escape((event.get("text") or "")[:300])}</div>'
+    return f'<div class="trace-event trace-event-text">{escape((event.get("text") or "")[:300])}</div>'
+
+
+def attempt_traces_section(records: list, *, title: str) -> str:
+    if not records:
+        return f'<p class="note">No {escape(title.lower())} kept yet.</p>'
+    cards = "".join(attempt_trace_card(r) for r in records)
+    return f'<div class="trace-list">{cards}</div>'
+
+
+# Extra CSS for the trace cards above -- not part of build_figures.py's
+# STYLE, since that's specifically the historical report's stylesheet and
+# these components only exist in run_report.py's live progress page.
+TRACE_STYLE = """
+.trace-list { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.trace-card { background: var(--surface-1); border: 1px solid var(--border); border-left: 4px solid; border-radius: 8px; padding: 10px 14px; }
+.trace-card summary { cursor: pointer; display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-size: 13px; }
+.trace-badge { color: #fff; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; padding: 2px 8px; border-radius: 10px; }
+.trace-meta { color: var(--muted); font-size: 12px; margin-left: auto; }
+.trace-question { color: var(--text-secondary); font-size: 12.5px; margin: 8px 0; font-style: italic; }
+.trace-calls { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
+.trace-call { display: flex; align-items: center; gap: 8px; font-size: 12px; flex-wrap: wrap; }
+.trace-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.trace-err { flex-basis: 100%; color: #e0475a; font-size: 11.5px; margin-left: 16px; }
+.trace-empty { color: var(--muted); font-size: 12.5px; font-style: italic; }
+.trace-judge { border-left: 3px solid; padding: 6px 10px; margin: 8px 0; background: var(--page); border-radius: 0 6px 6px 0; }
+.trace-judge-score { color: var(--muted); font-size: 12px; margin-left: 8px; }
+.trace-judge p { margin: 4px 0 0; font-size: 12.5px; color: var(--text-secondary); }
+.trace-reasoning summary { color: var(--text-secondary); font-size: 12px; margin-top: 6px; }
+.trace-event { font-size: 11.5px; padding: 4px 8px; margin: 3px 0 3px 12px; border-radius: 4px; }
+.trace-event-tool { background: rgba(42,120,214,.12); color: var(--series-1); font-family: ui-monospace, monospace; }
+.trace-event-result { background: rgba(27,175,122,.12); color: var(--series-3); font-family: ui-monospace, monospace; }
+.trace-event-thinking { color: var(--muted); font-style: italic; }
+.trace-event-text { color: var(--text-secondary); }
+"""

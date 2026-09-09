@@ -293,3 +293,16 @@ def pass_rate_and_duration(attempts_dir: Path) -> dict | None:
 def cost_rollup(attempts_dir: Path) -> float:
     """Total cost_usd across every readable kept attempt under a directory."""
     return sum(r.cost_usd for r in _load_records_tolerantly(_record_files(attempts_dir)))
+
+
+def recent_attempts(attempts_dir: Path, limit: int = 12) -> list:
+    """The most recently-written kept attempts, full Record2 objects.
+
+    Sorted by file mtime, not question id -- for a progress UI, "what just
+    happened" is the useful order, not alphabetical. Returns Record2
+    instances directly (not dicts): render.py's trace card reads their
+    fields, and this is already the tolerant load used everywhere else here.
+    """
+    files = _record_files(attempts_dir)
+    files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
+    return _load_records_tolerantly(files[:limit])

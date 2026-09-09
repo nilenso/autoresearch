@@ -34,6 +34,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import extract  # noqa: E402
 import render  # noqa: E402
 from build_figures import SCRIPT, STYLE  # noqa: E402
+from render import TRACE_STYLE  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 RUNS_DIR = ROOT / "experiments" / "runs"
@@ -143,6 +144,11 @@ def build(run_name: str) -> str:
                         for label, cost in (("Baseline (before)", before_cost),
                                             ("This run's kept attempts (after)", after_cost)))
 
+    candidate_traces = render.attempt_traces_section(
+        extract.recent_attempts(candidate_attempts), title="candidate attempts")
+    baseline_traces = render.attempt_traces_section(
+        extract.recent_attempts(baseline_attempts), title="baseline attempts")
+
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     if summary is not None:
         lever = summary.get("lever", "?")
@@ -168,6 +174,13 @@ def build(run_name: str) -> str:
 <h2>Cost</h2>
 <table><tbody>{cost_rows}</tbody></table>
 
+<h2>Recent candidate attempts</h2>
+<p class="note">Most recently written first, up to 12 -- commands run, reasoning trace, judge verdict.</p>
+{candidate_traces}
+
+<h2>Recent baseline attempts</h2>
+{baseline_traces}
+
 <p class="prov">Source: <code>experiments/runs/{escape(run_name)}/</code> and
 <code>experiments/baselines/{escape(sha)}*</code>. Rebuild anytime with
 <code>python3 tools/figures/run_report.py --run {escape(run_name)}</code>.</p>
@@ -181,7 +194,7 @@ def _page(body: str, *, refresh_seconds: int | None = None) -> str:
     # have to remember to reopen by hand.
     refresh = f'<meta http-equiv="refresh" content="{refresh_seconds}">' if refresh_seconds else ""
     return f"<!DOCTYPE html>\n<html><head><meta charset='utf-8'>{refresh}" \
-           f"<title>Run report</title><style>{STYLE}</style></head>" \
+           f"<title>Run report</title><style>{STYLE}{TRACE_STYLE}</style></head>" \
            f"<body>{body}<script>{SCRIPT}</script></body></html>\n"
 
 
