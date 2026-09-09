@@ -253,8 +253,14 @@ def agent_path() -> str:
     Recorded on every measurement for exactly the reason `release` is. A
     yardstick taken on one path and candidates on another are not comparable,
     and nothing about the numbers would say so.
+
+    Defaults to 'openrouter' so a run never silently falls onto the
+    subscription -- the failure mode that produced a withdrawn baseline once
+    already, when the subscription's quota ran out mid-run. Set
+    AUTORESEARCH_AGENT_PATH=subscription for a one-off check against the plan
+    instead.
     """
-    return os.environ.get("AUTORESEARCH_AGENT_PATH", "subscription")
+    return os.environ.get("AUTORESEARCH_AGENT_PATH", "openrouter")
 
 
 def agent_provider() -> str:
@@ -262,9 +268,20 @@ def agent_provider() -> str:
 
     Worth recording separately from the path because OpenRouter spreads
     requests across whoever is serving a model unless pinned -- observed
-    returning four different hosts in four calls. See orproxy.py.
+    returning four different hosts in four calls. See orproxy.py, which is
+    what pins it for the 'openrouter' default path.
     """
-    return os.environ.get("AUTORESEARCH_AGENT_PROVIDER", "anthropic-subscription")
+    return os.environ.get("AUTORESEARCH_AGENT_PROVIDER", "openrouter-anthropic-pinned")
+
+
+def openrouter_agent_key() -> str:
+    """The API key the agent's own OpenRouter traffic is billed to.
+
+    Same key as the reflection LM's, and the same reasoning applies: one key
+    covers every provider we might want, so there is only one credential to
+    manage. Read fresh rather than cached, same as everything else here.
+    """
+    return os.environ.get(REFLECTION_KEY_VAR, "")
 
 
 # One throwaway question, to find out whether the subscription has anything
@@ -604,7 +621,14 @@ def preflight(needs_api_key: bool = True, sha: str | None = None,
     # Last two, because they are the slowest and there is no point testing the
     # link or the quota if we already know the key or the yardstick is wrong.
     network_note = _check_network() if check_network else "not checked"
-    quota_note = _check_quota() if check_quota else "not checked"
+    # The subscription-quota probe only means something when the agent is
+    # actually billed to the subscription. On the 'openrouter' path, funding
+    # is already checked above via the API key's balance -- probing
+    # subscription quota on top would be a pointless subscription call at
+    # best, and a false blocker (or a spend with no subscription auth
+    # configured at all) at worst.
+    quota_note = (_check_quota() if check_quota and agent_path() == "subscription"
+                  else "not applicable — agent runs via OpenRouter")
 
     repo = repo_root()
     required = [

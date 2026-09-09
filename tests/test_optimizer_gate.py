@@ -42,6 +42,35 @@ def test_optimizer_passes_train_as_dataset_and_val_as_valset():
     assert src.index("dataset=train,") < src.index("valset=val,")
 
 
+def test_optimizer_wires_iterations_as_the_primary_stop_condition():
+    """--iterations must reach GEPA's own iteration-count stop condition, not
+    just the evaluation-count budget, or it silently does nothing.
+    """
+    from autoresearch import optimize
+
+    src = inspect.getsource(optimize.run)
+
+    assert "max_candidate_proposals=iterations" in src
+    assert "max_metric_calls=budget" in src
+
+
+def test_optimizer_points_claude_at_the_pinning_proxy_on_the_openrouter_path():
+    """Setting agent_path()=='openrouter' without this would still send the
+    agent's traffic straight to the real Anthropic API with an
+    OpenRouter-shaped model string, which fails outright.
+    """
+    from autoresearch import optimize
+
+    src = inspect.getsource(optimize.run)
+
+    assert 'os.environ["ANTHROPIC_BASE_URL"] = proxy.base_url' in src
+    assert "orproxy.Pin(config.openrouter_agent_key())" in src
+    # The proxy discards whatever key Claude Code sends and substitutes the
+    # real OpenRouter one, so a placeholder is fine -- but it must be set,
+    # or Claude Code refuses to start at all.
+    assert 'os.environ.setdefault("ANTHROPIC_API_KEY"' in src
+
+
 def test_background_and_objective_never_quote_a_real_question_verbatim():
     """A hardcoded example question in BACKGROUND/_objective_text would leak
     into the reflection prompt on every run, regardless of which questions

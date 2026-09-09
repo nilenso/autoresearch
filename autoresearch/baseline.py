@@ -125,7 +125,8 @@ def measure(questions: list[Question], tree: Path, sha: str,
                 # this nothing would ever say so.
                 "agent_path": config.agent_path(),
                 "agent_provider": config.agent_provider(),
-                "agent_model": config.AGENT_MODEL,
+                "agent_model": (config.OPENROUTER_MODEL if config.agent_path() == "openrouter"
+                                 else config.AGENT_MODEL),
                 "pinned": False,  # the tool picks the latest snapshot itself
                 "correctness_impl": config.CORRECTNESS_IMPL,
                 "repeats": config.REPEATS,

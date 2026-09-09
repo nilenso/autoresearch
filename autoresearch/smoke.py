@@ -11,10 +11,11 @@ otherwise break silently.
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 from pathlib import Path
 
-from . import baseline, config, questions as qmod, runner, score
+from . import baseline, config, orproxy, questions as qmod, runner, score
 from .worktree import Pool, head_sha
 
 _failures = 0
@@ -143,9 +144,23 @@ def main() -> int:
 
         if args.ask:
             print("\n[5] One real question")
-            q = train[0]
-            print(f"  asking: {q.question!r}  (~$0.50, up to 15 min)")
-            attempts = runner.ask_repeatedly(q, tree, repeats=1)
+            # Same wiring as optimize.py: on the 'openrouter' agent path
+            # (the default), Claude Code has to be pointed at the pinning
+            # proxy or it would try to send an OpenRouter-shaped model
+            # string straight to the real Anthropic API and fail.
+            on_openrouter = config.agent_path() == "openrouter"
+            proxy = orproxy.Pin(config.openrouter_agent_key()) if on_openrouter else None
+            if proxy is not None:
+                proxy.__enter__()
+                os.environ["ANTHROPIC_BASE_URL"] = proxy.base_url
+                os.environ.setdefault("ANTHROPIC_API_KEY", "routed-via-orproxy")
+            try:
+                q = train[0]
+                print(f"  asking: {q.question!r}  (~$0.50, up to 15 min)")
+                attempts = runner.ask_repeatedly(q, tree, repeats=1)
+            finally:
+                if proxy is not None:
+                    proxy.__exit__(None, None, None)
             a = attempts[0]
             if not a.ok:
                 bad("the question ran", "it crashed or timed out")

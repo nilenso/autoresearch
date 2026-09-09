@@ -606,20 +606,21 @@ class TestQuotaGuard:
 class TestBillingPathIsRecorded:
     """Same model, different till — but only if something writes down which.
 
-    OpenRouter is the fallback when subscription quota runs out. It serves the
-    same Sonnet, so the numbers *should* be comparable. The danger is that
-    "should" is untested: a baseline measured on one path and candidates on
-    another is the same defect as measuring across two map-data releases, and
-    nothing about the scores would reveal it.
+    OpenRouter is the default path; the subscription is the opt-in
+    alternative for a one-off check. Both serve the same Sonnet, so the
+    numbers *should* be comparable. The danger is that "should" is untested:
+    a baseline measured on one path and candidates on another is the same
+    defect as measuring across two map-data releases, and nothing about the
+    scores would reveal it.
     """
 
-    def test_the_default_path_is_the_subscription(self, monkeypatch):
+    def test_the_default_path_is_openrouter(self, monkeypatch):
         monkeypatch.delenv("AUTORESEARCH_AGENT_PATH", raising=False)
-        assert config.agent_path() == "subscription"
-
-    def test_the_fallback_path_is_recorded_when_selected(self, monkeypatch):
-        monkeypatch.setenv("AUTORESEARCH_AGENT_PATH", "openrouter")
         assert config.agent_path() == "openrouter"
+
+    def test_the_subscription_path_is_recorded_when_selected(self, monkeypatch):
+        monkeypatch.setenv("AUTORESEARCH_AGENT_PATH", "subscription")
+        assert config.agent_path() == "subscription"
 
     def test_the_serving_host_is_recorded_separately_from_the_path(self, monkeypatch):
         # Separate because OpenRouter is a pool, not a host: unpinned it
@@ -640,6 +641,38 @@ class TestBillingPathIsRecorded:
     def test_the_base_url_stops_at_api_because_claude_appends_v1_messages(self):
         # Observed: a base ending in /api/v1 produces /api/v1/v1/messages -> 404.
         assert config.OPENROUTER_BASE.endswith("/api")
+
+    def test_openrouter_agent_key_reads_the_same_var_as_the_reflection_lm(self, monkeypatch):
+        monkeypatch.setenv(config.REFLECTION_KEY_VAR, "sk-shared")
+        assert config.openrouter_agent_key() == "sk-shared"
+
+    def test_openrouter_agent_key_is_empty_not_none_when_unset(self, monkeypatch):
+        monkeypatch.delenv(config.REFLECTION_KEY_VAR, raising=False)
+        assert config.openrouter_agent_key() == ""
+
+    def test_quota_probe_is_skipped_on_the_openrouter_path(self, monkeypatch, tmp_path):
+        monkeypatch.setattr(config, "ENV_FILE", tmp_path / "absent")
+        monkeypatch.setenv(config.REFLECTION_KEY_VAR, "sk-test")
+        monkeypatch.setenv("AUTORESEARCH_AGENT_PATH", "openrouter")
+        monkeypatch.setattr(credits, "fetch",
+                            lambda key, **kw: credits.Balance(granted=100.0, used=0.0))
+
+        def boom():
+            raise AssertionError("quota should not be probed on the openrouter path")
+        monkeypatch.setattr(config, "_check_quota", boom)
+
+        note = config.preflight(check_network=False)["quota"]
+        assert "not applicable" in note
+
+    def test_quota_probe_still_runs_on_the_subscription_path(self, monkeypatch, tmp_path):
+        monkeypatch.setattr(config, "ENV_FILE", tmp_path / "absent")
+        monkeypatch.setenv(config.REFLECTION_KEY_VAR, "sk-test")
+        monkeypatch.setenv("AUTORESEARCH_AGENT_PATH", "subscription")
+        monkeypatch.setattr(credits, "fetch",
+                            lambda key, **kw: credits.Balance(granted=100.0, used=0.0))
+        monkeypatch.setattr(config, "_check_quota", lambda: "probed")
+
+        assert config.preflight(check_network=False)["quota"] == "probed"
 
 
 class TestBaselineRetentionIsScoped:

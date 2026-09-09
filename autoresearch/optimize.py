@@ -17,20 +17,21 @@ Two rules keep the answer meaningful:
   scored on a set it never saw. Without that we'd only learn that it can
   memorise the questions we gave it.
 
-    python -m autoresearch.optimize --lever tool --budget 60
+    python -m autoresearch.optimize --lever tool --iterations 15
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 import gepa.optimize_anything as oa
 
-from . import baseline, blocked, config, proposer as proposer_mod, questions as qmod
+from . import baseline, blocked, config, orproxy, proposer as proposer_mod, questions as qmod
 from .agenteval.sabotage import FIXTURES, assert_sabotage_passes
 from .agenteval.taxonomy import TranscriptLike, classify, classify_attempt
 from .evaluator import Evaluator
@@ -111,17 +112,22 @@ def run_sabotage_gate() -> None:
     assert_sabotage_passes(classify_fixture, FIXTURES)
 
 
-def run(lever: str, budget: int, holdout: float, reflection_lm: str,
+def run(lever: str, budget: int, iterations: int, holdout: float, reflection_lm: str,
         workers: int, keep_runs: bool,
         files: tuple[str, ...] | None = None,
         proposer: str = "api", full_repo_context: bool = False) -> None:
     started = time.time()
     run_sabotage_gate()
     subscription = proposer == "subscription"
+    # The OpenRouter key pays for two different things now: the reflection
+    # LM (when proposer='api') and, on the 'openrouter' agent path (the
+    # default), the measured agent's own traffic too. Need it unless *both*
+    # are on the subscription.
+    needs_api_key = (not subscription) or (config.agent_path() == "openrouter")
     # Before preflight, because checking the cached baseline's map-data
     # release needs to know which baseline we would be reusing.
     sha = head_sha()
-    checks = config.preflight(needs_api_key=not subscription, sha=sha)
+    checks = config.preflight(needs_api_key=needs_api_key, sha=sha)
     print(f"[oa] tool: {checks['repo']} @ {sha}")
     print(f"[oa] map data: NOT pinned — {checks['release']}")
     print(f"[oa] link to map data: {checks['network']}")
@@ -160,6 +166,24 @@ def run(lever: str, budget: int, holdout: float, reflection_lm: str,
     # deliberately does NOT share this variable, so it cannot leak back here.
     candidate_attempts = run_dir / "attempts" if keep_runs else None
 
+    # Pin the measured agent's traffic to one OpenRouter-served host for the
+    # whole run -- one proxy per run process, not per attempt, since hundreds
+    # of evaluations sharing it is the point. Only relevant on the
+    # 'openrouter' agent path; a subscription run needs none of this.
+    # Entered/exited manually (not `with`) so it can share the existing
+    # try/finally around the pool instead of re-indenting that whole block.
+    on_openrouter = config.agent_path() == "openrouter"
+    proxy = orproxy.Pin(config.openrouter_agent_key()) if on_openrouter else None
+    if proxy is not None:
+        proxy.__enter__()
+        os.environ["ANTHROPIC_BASE_URL"] = proxy.base_url
+        # Claude Code still refuses to start without *a* key; orproxy
+        # discards whatever it receives and substitutes the real OpenRouter
+        # key itself, so the value here only has to be non-empty, never valid.
+        os.environ.setdefault("ANTHROPIC_API_KEY", "routed-via-orproxy")
+        print(f"[oa] agent traffic pinned through {proxy.base_url} -> "
+              f"openrouter ({proxy.provider} only)")
+
     pool = Pool(sha, files=files)
     pool.prune()
     try:
@@ -180,7 +204,8 @@ def run(lever: str, budget: int, holdout: float, reflection_lm: str,
         seed = pool.read_original(lever)
         total = sum(len(t.splitlines()) for t in seed.values())
         print(f"[oa] starting from the current files ({total} lines in total)")
-        print(f"[oa] budget: {budget} evaluations (each is ~{config.REPEATS} questions asked)")
+        print(f"[oa] budget: up to {iterations} iterations, capped at {budget} "
+              f"evaluations (each is ~{config.REPEATS} questions asked)")
 
         context = ""
         if full_repo_context:
@@ -198,6 +223,10 @@ def run(lever: str, budget: int, holdout: float, reflection_lm: str,
             config=oa.GEPAConfig(
                 engine=oa.EngineConfig(
                     max_metric_calls=budget,
+                    # The primary stop condition -- see the module docstring
+                    # for why evaluations alone are a poor proxy for this.
+                    # GEPA stops at whichever of the two limits comes first.
+                    max_candidate_proposals=iterations,
                     run_dir=str(run_dir / "gepa"),
                     # Parallel workers each need their own copy of the tool,
                     # which the pool hands out per thread.
@@ -268,9 +297,10 @@ def run(lever: str, budget: int, holdout: float, reflection_lm: str,
             # same defect as one taken on another map-data release.
             "agent_path": config.agent_path(),
             "agent_provider": config.agent_provider(),
-            "agent_model": config.AGENT_MODEL,
+            "agent_model": (config.OPENROUTER_MODEL if on_openrouter else config.AGENT_MODEL),
             "proposer": described,
             "budget": budget,
+            "iterations_requested": iterations,
             "evaluations_run": evaluate.calls,
             "candidates_tried": getattr(result, "num_candidates", None),
             "train_questions": [q.id for q in train],
@@ -289,6 +319,8 @@ def run(lever: str, budget: int, holdout: float, reflection_lm: str,
             print(note)
     finally:
         pool.close()
+        if proxy is not None:
+            proxy.__exit__(None, None, None)
 
 
 def main() -> None:
@@ -296,8 +328,16 @@ def main() -> None:
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--lever", choices=sorted(config.LEVERS), default="tool",
                    help="which single file to evolve (default: tool)")
-    p.add_argument("--budget", type=int, default=60,
-                   help="how many candidate evaluations to allow (default: 60)")
+    p.add_argument("--iterations", type=int, default=15,
+                   help="how many proposal rounds to run (default: 15) — this is the "
+                        "primary control on run length, via GEPA's own "
+                        "max_candidate_proposals")
+    p.add_argument("--budget", type=int, default=180,
+                   help="a cost safety ceiling on evaluations, not the primary control "
+                        "(default: 180, generous enough to not bind before --iterations "
+                        "finishes at the ~7 evaluations/iteration observed historically — "
+                        "not a precise prediction, since it varies with minibatch "
+                        "composition)")
     p.add_argument("--holdout", type=float, default=0.5,
                    help="fraction of questions kept back to check generalisation "
                         "(default: 0.5, which is 16 training / 13 held-out on the "
@@ -334,7 +374,7 @@ def main() -> None:
     chosen = tuple(args.files) if args.files else (
         config.full_repo_files(include_evaluator=args.include_evaluator_files)
         if args.all_files else None)
-    run(args.lever, args.budget, args.holdout, args.reflection_lm,
+    run(args.lever, args.budget, args.iterations, args.holdout, args.reflection_lm,
         args.workers, args.keep_runs, chosen, args.proposer,
         args.full_repo_context)
 
