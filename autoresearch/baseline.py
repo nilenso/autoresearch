@@ -16,6 +16,7 @@ from pathlib import Path
 
 from . import config, runner
 from .agenteval import contract
+from .agenteval.judge import judge_route_quality
 from .agenteval.record import build_record
 from .agenteval.score import score_record
 from .questions import Question
@@ -39,12 +40,24 @@ def _summarise(attempts: list[Attempt], question: Question, keep_dir: Path) -> R
         # runner.ask() already made, never the deleted scratch original.
         transcript_path = keep_dir / f"{question.id}__r{attempt.repeat}" / "transcript.jsonl"
         record = build_record(attempt, question=question, transcript_path=transcript_path)
-        score = score_record(record, completed=attempt.completed)
+        # The baseline is judged under the same rubric as every candidate,
+        # so the before/after comparison (bar chart, etc.) is apples to
+        # apples -- not just candidates getting the richer scoring.
+        verdict = judge_route_quality(question, record)
+        score = score_record(record, completed=attempt.completed,
+                              route_quality=verdict.adherence if verdict else None)
         # No token_efficiency/wallclock_efficiency here: the baseline IS the
         # reference everything else compares against, so "efficiency versus
         # itself" isn't a meaningful number to store -- they stay unset
         # rather than a fabricated 1.0.
-        record = replace(record, score=score.value)
+        record = replace(
+            record,
+            score=score.value,
+            route_judge=(
+                {"adherence": verdict.adherence, "verdict": verdict.verdict, "rationale": verdict.rationale}
+                if verdict else None
+            ),
+        )
         contract.write(keep_dir / f"{question.id}__r{attempt.repeat}" / "record-v2.json", record)
         measured.append((attempt, score))
 

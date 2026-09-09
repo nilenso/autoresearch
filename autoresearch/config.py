@@ -101,7 +101,15 @@ WEIGHTS = {"correctness": 0.60, "token_efficiency": 0.20, "wallclock": 0.20}
 
 # Names the way correctness is currently measured. Recorded on every result so
 # two runs scored by different rules are never compared as if they matched.
-CORRECTNESS_IMPL = "agenteval-v2"
+# Bumped from agenteval-v2: route_quality is now an LLM judge's verdict
+# against the question's notes (see agenteval/judge.py) instead of a
+# failed-call-count proxy -- the same 6/60 weight, a different meaning.
+CORRECTNESS_IMPL = "agenteval-v3"
+
+# The model that judges whether an attempt followed a question's intended
+# path (agenteval/judge.py). Same model and same OpenRouter key as the
+# reflection LM on purpose -- there's no reason for a third credential.
+JUDGE_MODEL = REFLECTION_LM
 
 # The tool we're changing. `~/workspace/botmap` unless you say otherwise.
 DEFAULT_REPO = Path.home() / "workspace" / "botmap"
@@ -294,6 +302,10 @@ def openrouter_agent_key() -> str:
 # skip: it scores as correctness 0, meaning "this candidate broke the tool",
 # and the budget goes on fixing something that was never wrong.
 QUOTA_PROBE_TIMEOUT_S = 120
+
+# The judge (agenteval/judge.py) is one non-agentic completion call, not a
+# tool-using session -- generous but nowhere near RUN_TIMEOUT_S's 900.
+JUDGE_TIMEOUT_S = 60
 
 # Matched against the agent's own words. Kept as fragments rather than the
 # whole sentence because the wording carries a reset time that varies.

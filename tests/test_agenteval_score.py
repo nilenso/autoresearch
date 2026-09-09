@@ -138,3 +138,47 @@ def test_incomplete_non_environment_attempt_scores_zero_not_fast_path_credit():
 
     assert scored.value == 0.0
     assert scored.breakdown.correctness_recoverability == 0.0
+
+
+def test_route_quality_falls_back_to_the_call_count_proxy_when_not_given():
+    clean = verdict("ok", recovery="n/a")
+
+    without_judge = score_attempt([clean])
+
+    # A clean, single-call attempt: the old proxy (1 / (1 + failures)) gives
+    # full marks here too, so this only confirms the fallback still runs at
+    # all -- test_route_quality_uses_the_judge_verdict_when_given below is
+    # the one that proves the judge's number, not the proxy's, wins.
+    assert without_judge.breakdown.route_quality == 1.0
+
+
+def test_route_quality_uses_the_judge_verdict_when_given():
+    clean = verdict("ok", recovery="n/a")
+
+    judged = score_attempt([clean], route_quality=0.3)
+
+    assert judged.breakdown.route_quality == 0.3
+    assert judged.value < score_attempt([clean]).value
+
+
+def test_route_quality_from_the_judge_is_clamped_to_0_1():
+    clean = verdict("ok", recovery="n/a")
+
+    over = score_attempt([clean], route_quality=1.5)
+    under = score_attempt([clean], route_quality=-0.5)
+
+    assert over.breakdown.route_quality == 1.0
+    assert under.breakdown.route_quality == 0.0
+
+
+def test_score_record_passes_route_quality_through():
+    record = {
+        "calls": [{
+            "outcome": "ok", "blame": "tool", "recovery": "n/a",
+            "class": None, "subtype": None, "evidence": "clean", "probes": [],
+        }],
+        "agent_side": [],
+        "attempt": None,
+    }
+
+    assert score_record(record, route_quality=0.2).breakdown.route_quality == 0.2

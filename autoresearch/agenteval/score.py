@@ -94,12 +94,17 @@ def score_attempt(
     wallclock: float = 1.0,
     extra_tokens: int = 0,
     extra_wallclock_ms: int = 0,
+    route_quality: float | None = None,
 ) -> Score:
     """Score one attempt.
 
     ``token_efficiency`` and ``wallclock`` are normalized 0..1 values supplied by
-    the outer evaluator when a reference baseline exists.  This module owns the
-    class semantics and recovery accounting.
+    the outer evaluator when a reference baseline exists.  ``route_quality`` is
+    likewise supplied by the outer evaluator -- an LLM judge's verdict on
+    whether the attempt followed the question's intended path (see
+    agenteval/judge.py) -- and used in place of the ``_route_quality()``
+    call-count proxy when given.  This module owns the class semantics and
+    recovery accounting.
     """
     call_tuple = tuple(calls)
     agent_side_tuple = tuple(agent_side)
@@ -139,6 +144,7 @@ def score_attempt(
         recovery=recovery,
         token_efficiency=token_efficiency,
         wallclock=wallclock,
+        route_quality=route_quality,
     )
     value = (
         CORRECTNESS_RECOVERABILITY_WEIGHT * breakdown.correctness_recoverability
@@ -165,6 +171,7 @@ def score_record(
     wallclock: float = 1.0,
     extra_tokens: int = 0,
     extra_wallclock_ms: int = 0,
+    route_quality: float | None = None,
 ) -> Score:
     """Score a record-v2 object or raw dictionary.
 
@@ -182,6 +189,7 @@ def score_record(
         wallclock=wallclock,
         extra_tokens=extra_tokens,
         extra_wallclock_ms=extra_wallclock_ms,
+        route_quality=route_quality,
     )
 
 
@@ -203,11 +211,18 @@ def _breakdown(
     recovery: RecoveryStats,
     token_efficiency: float,
     wallclock: float,
+    route_quality: float | None = None,
 ) -> ScoreBreakdown:
     final_outcome = _final_outcome_quality(charged, completed)
     self_recovery = recovery.self_recovery_rate if recovery.self_recovery_rate is not None else 1.0
     guidance = _guidance_quality(charged)
-    route_quality = _route_quality(charged)
+    # The LLM judge's verdict on whether the attempt followed the question's
+    # intended path (agenteval/judge.py), when the outer evaluator has one --
+    # otherwise the call-count proxy this axis has always used. Clamped the
+    # same way the other terms are, even though the judge is asked for a
+    # 0..1 value already.
+    route_quality = (_route_quality(charged) if route_quality is None
+                      else max(0.0, min(1.0, route_quality)))
     attribution = _attribution_quality(charged)
     correctness = (
         FINAL_OUTCOME_POINTS * final_outcome

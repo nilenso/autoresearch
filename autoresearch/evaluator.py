@@ -22,6 +22,7 @@ import gepa.optimize_anything as oa
 
 from . import config, runner
 from .agenteval import contract
+from .agenteval import judge as agenteval_judge
 from .agenteval import score as agenteval_score
 from .agenteval.explain import explain
 from .agenteval.record import build_record
@@ -124,6 +125,12 @@ class Evaluator:
         for item in measured:
             oa.log(f'Question: "{example.question}"')
             oa.log(explain(item["record"]))
+            route_judge = item["record"].route_judge
+            if route_judge:
+                oa.log(
+                    f"Route adherence: {route_judge['verdict']} "
+                    f"({route_judge['adherence']:.2f}) — {route_judge['rationale']}"
+                )
         ref = self.reference.get(example.id)
         if ref:
             direction = "better" if correctness > ref.correctness else (
@@ -156,17 +163,30 @@ def _measure_attempt(attempt, reference: Reading | None, question: Question,
     wall = attempt.transcript.usage.duration_ms
     token_eff = agenteval_score.efficiency(reference.tokens if reference else None, tokens)
     wall_eff = agenteval_score.efficiency(reference.duration_ms if reference else None, wall)
+    # Judge before scoring, not after: score_record()'s route_quality axis
+    # needs the verdict's adherence float as an input, and the judge itself
+    # needs this record's calls -- neither can happen the other way round.
+    verdict = agenteval_judge.judge_route_quality(question, record)
     scored = agenteval_score.score_record(
         asdict(record),
         completed=attempt.completed,
         token_efficiency=token_eff,
         wallclock=wall_eff,
+        route_quality=verdict.adherence if verdict else None,
     )
     # Attach what only became known by scoring this record -- can't be part
     # of build_record() itself, since score_record() needs the record as
     # its input.
-    record = replace(record, score=scored.value, token_efficiency=token_eff,
-                      wallclock_efficiency=wall_eff)
+    record = replace(
+        record,
+        score=scored.value,
+        token_efficiency=token_eff,
+        wallclock_efficiency=wall_eff,
+        route_judge=(
+            {"adherence": verdict.adherence, "verdict": verdict.verdict, "rationale": verdict.rationale}
+            if verdict else None
+        ),
+    )
     if keep_dir is not None:
         contract.write(keep_dir / f"{question.id}__r{attempt.repeat}" / "record-v2.json", record)
     return {"attempt": attempt, "record": record, "score": scored}
