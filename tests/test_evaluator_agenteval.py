@@ -85,10 +85,11 @@ def test_evaluator_excludes_attempt_level_quota_instead_of_scoring_candidate(mon
     assert any("CLASS E" in line for line in logs)
 
 
-def test_baseline_summary_uses_agenteval_and_drops_environment_attempts():
+def test_baseline_summary_uses_agenteval_and_drops_environment_attempts(tmp_path):
     starved = attempt([], transcript("You've hit your session limit", status="error", tokens=9999, ms=9999))
     clean = attempt([Call(["count"], exit_code=0, stdout="12", stderr="")], transcript(tokens=100, ms=200))
+    question = Question(id="q1", tier=1, question="how many?")
 
-    reading = _summarise([starved, clean])
+    reading = _summarise([starved, clean], question, tmp_path)
 
     assert reading == Reading(tokens=100, duration_ms=200, correctness=1.0)

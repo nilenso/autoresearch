@@ -97,6 +97,15 @@ def ask(question: Question, tree: Path, repeat: int, keep_dir: Path | None = Non
 
         # Keeping the raw files is optional because GEPA runs hundreds of
         # these; saving them all would fill the disk for little benefit.
+        #
+        # record-v2.json is NOT written here on purpose. Building it here
+        # would only ever produce an unscored copy -- score, token/wallclock
+        # efficiency, and route_judge all depend on comparing this attempt
+        # against a reference, which this function has no access to. The
+        # scoring layer (Evaluator._measure_attempt, baseline._summarise)
+        # builds and writes the one, fully-enriched record-v2.json at this
+        # same path once scoring is done, instead of writing an impoverished
+        # version here that nothing ever comes back to complete.
         if keep_dir is not None:
             keep = keep_dir / f"{question.id}__r{repeat}"
             keep.mkdir(parents=True, exist_ok=True)
@@ -105,10 +114,6 @@ def ask(question: Question, tree: Path, repeat: int, keep_dir: Path | None = Non
                                ("claude-stderr.log", stderr_path)):
                 if path.exists():
                     shutil.copy(path, keep / name)
-            from .agenteval.contract import write as write_record2
-            from .agenteval.record import build_record
-
-            write_record2(keep / "record-v2.json", build_record(attempt, transcript_path=transcript_path))
         return attempt
     finally:
         shutil.rmtree(workdir, ignore_errors=True)

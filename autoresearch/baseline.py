@@ -11,10 +11,11 @@ from __future__ import annotations
 
 import json
 import statistics
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 
 from . import config, runner
+from .agenteval import contract
 from .agenteval.record import build_record
 from .agenteval.score import score_record
 from .questions import Question
@@ -30,11 +31,23 @@ class Reading:
     correctness: float
 
 
-def _summarise(attempts: list[Attempt]) -> Reading | None:
-    measured = [
-        (attempt, score_record(build_record(attempt), completed=attempt.completed))
-        for attempt in attempts
-    ]
+def _summarise(attempts: list[Attempt], question: Question, keep_dir: Path) -> Reading | None:
+    measured = []
+    for attempt in attempts:
+        # Attempts are always retained for a baseline (see measure()'s
+        # docstring), so the transcript this reads is always the copy
+        # runner.ask() already made, never the deleted scratch original.
+        transcript_path = keep_dir / f"{question.id}__r{attempt.repeat}" / "transcript.jsonl"
+        record = build_record(attempt, question=question, transcript_path=transcript_path)
+        score = score_record(record, completed=attempt.completed)
+        # No token_efficiency/wallclock_efficiency here: the baseline IS the
+        # reference everything else compares against, so "efficiency versus
+        # itself" isn't a meaningful number to store -- they stay unset
+        # rather than a fabricated 1.0.
+        record = replace(record, score=score.value)
+        contract.write(keep_dir / f"{question.id}__r{attempt.repeat}" / "record-v2.json", record)
+        measured.append((attempt, score))
+
     usable = [(attempt, score) for attempt, score in measured if not score.excluded]
     if not usable:
         return None  # every try failed outside the tool; this question tells us nothing
@@ -119,7 +132,7 @@ def measure(questions: list[Question], tree: Path, sha: str,
 
     for i, q in enumerate(questions, 1):
         print(f"[baseline] {i}/{len(questions)} {q.id}", flush=True)
-        reading = _summarise(runner.ask_repeatedly(q, tree, keep_dir=keep_dir))
+        reading = _summarise(runner.ask_repeatedly(q, tree, keep_dir=keep_dir), q, keep_dir)
         if reading is None:
             skipped.append(q.id)
             continue

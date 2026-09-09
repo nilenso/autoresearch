@@ -744,7 +744,7 @@ class TestBaselineFailsLoudOnPartialMeasurement:
     def test_a_complete_measurement_saves_without_asking(self, tmp_path, monkeypatch):
         monkeypatch.setattr(config, "ROOT", tmp_path)
         monkeypatch.setattr("autoresearch.runner.ask_repeatedly", lambda *a, **kw: [])
-        monkeypatch.setattr(baseline, "_summarise", lambda attempts: baseline.Reading(1, 2, 3))
+        monkeypatch.setattr(baseline, "_summarise", lambda attempts, question, keep_dir: baseline.Reading(1, 2, 3))
 
         readings = baseline.measure([QUESTION], tmp_path, "abc1234")
 
@@ -754,7 +754,7 @@ class TestBaselineFailsLoudOnPartialMeasurement:
     def test_any_skip_refuses_to_save_by_default(self, tmp_path, monkeypatch):
         monkeypatch.setattr(config, "ROOT", tmp_path)
         monkeypatch.setattr("autoresearch.runner.ask_repeatedly", lambda *a, **kw: [])
-        monkeypatch.setattr(baseline, "_summarise", lambda attempts: None)
+        monkeypatch.setattr(baseline, "_summarise", lambda attempts, question, keep_dir: None)
 
         with pytest.raises(SystemExit, match="1/1"):
             baseline.measure([QUESTION], tmp_path, "abc1234")
@@ -764,7 +764,7 @@ class TestBaselineFailsLoudOnPartialMeasurement:
     def test_force_saves_the_gap_and_records_it(self, tmp_path, monkeypatch):
         monkeypatch.setattr(config, "ROOT", tmp_path)
         monkeypatch.setattr("autoresearch.runner.ask_repeatedly", lambda *a, **kw: [])
-        monkeypatch.setattr(baseline, "_summarise", lambda attempts: None)
+        monkeypatch.setattr(baseline, "_summarise", lambda attempts, question, keep_dir: None)
 
         readings = baseline.measure([QUESTION], tmp_path, "abc1234", force=True)
 
@@ -775,7 +775,7 @@ class TestBaselineFailsLoudOnPartialMeasurement:
     def test_load_refuses_a_baseline_saved_with_gaps(self, tmp_path, monkeypatch):
         monkeypatch.setattr(config, "ROOT", tmp_path)
         monkeypatch.setattr("autoresearch.runner.ask_repeatedly", lambda *a, **kw: [])
-        monkeypatch.setattr(baseline, "_summarise", lambda attempts: None)
+        monkeypatch.setattr(baseline, "_summarise", lambda attempts, question, keep_dir: None)
         baseline.measure([QUESTION], tmp_path, "abc1234", force=True)
 
         assert baseline.load("abc1234") is None
@@ -783,7 +783,7 @@ class TestBaselineFailsLoudOnPartialMeasurement:
     def test_load_still_serves_a_complete_baseline(self, tmp_path, monkeypatch):
         monkeypatch.setattr(config, "ROOT", tmp_path)
         monkeypatch.setattr("autoresearch.runner.ask_repeatedly", lambda *a, **kw: [])
-        monkeypatch.setattr(baseline, "_summarise", lambda attempts: baseline.Reading(1, 2, 3))
+        monkeypatch.setattr(baseline, "_summarise", lambda attempts, question, keep_dir: baseline.Reading(1, 2, 3))
         baseline.measure([QUESTION], tmp_path, "abc1234")
 
         assert baseline.load("abc1234")["q1"] == baseline.Reading(1, 2, 3)

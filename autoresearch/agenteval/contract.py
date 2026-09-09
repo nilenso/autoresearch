@@ -73,6 +73,26 @@ class Record2:
     botmap_calls: int
     answer: dict[str, Any]
     attempt: AttemptVerdict | None = None
+    # Denormalized task description, so a record is self-describing without a
+    # join against experiments/questions.yaml.
+    question: str = ""
+    place: str | None = None
+    # The score and its two efficiency terms, computed by the outer evaluator
+    # (autoresearch/score.py) and persisted here instead of discarded once
+    # folded into the aggregate.
+    score: float | None = None
+    token_efficiency: float | None = None
+    wallclock_efficiency: float | None = None
+    total_tokens: int = 0
+    duration_ms: int = 0
+    cost_usd: float = 0.0
+    # Assistant text/thinking blocks, tool_use, and tool_result events, in
+    # order, extracted from the retained transcript.jsonl -- an extraction
+    # gap this closes, not a new capture mechanism.
+    reasoning_trace: tuple[dict[str, Any], ...] = ()
+    # The LLM judge's verdict on whether the attempt followed the question's
+    # intended path (adherence, verdict, rationale) -- see agenteval/judge.py.
+    route_judge: dict[str, Any] | None = None
 
 
 def derive_class(outcome: str, blame: str, recovery: str) -> str | None:
@@ -149,7 +169,53 @@ def validate(raw: dict[str, Any]) -> list[str]:
         else:
             _validate_verdict(raw["attempt"], "attempt", problems, allow_missing=False)
 
+    # Optional metadata: type-checked only when present, never required, so
+    # records written before these fields existed keep loading and validating
+    # cleanly.
+    _validate_optional_str(raw, "question", problems)
+    _validate_optional_str(raw, "place", problems, nullable=True)
+    _validate_optional_number(raw, "score", problems, nullable=True)
+    _validate_optional_number(raw, "token_efficiency", problems, nullable=True)
+    _validate_optional_number(raw, "wallclock_efficiency", problems, nullable=True)
+    _validate_optional_int(raw, "total_tokens", problems)
+    _validate_optional_int(raw, "duration_ms", problems)
+    _validate_optional_number(raw, "cost_usd", problems)
+    if "reasoning_trace" in raw and not isinstance(raw.get("reasoning_trace"), list):
+        problems.append("reasoning_trace must be a list")
+    if "route_judge" in raw:
+        route_judge = raw.get("route_judge")
+        if route_judge is not None and not isinstance(route_judge, dict):
+            problems.append("route_judge must be an object or null")
+
     return problems
+
+
+def _validate_optional_str(raw: dict[str, Any], key: str, problems: list[str], *, nullable: bool = False) -> None:
+    if key not in raw:
+        return
+    value = raw.get(key)
+    if nullable and value is None:
+        return
+    if not isinstance(value, str):
+        problems.append(f"{key} must be a string" + (" or null" if nullable else ""))
+
+
+def _validate_optional_number(raw: dict[str, Any], key: str, problems: list[str], *, nullable: bool = False) -> None:
+    if key not in raw:
+        return
+    value = raw.get(key)
+    if nullable and value is None:
+        return
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        problems.append(f"{key} must be a number" + (" or null" if nullable else ""))
+
+
+def _validate_optional_int(raw: dict[str, Any], key: str, problems: list[str]) -> None:
+    if key not in raw:
+        return
+    value = raw.get(key)
+    if not isinstance(value, int) or isinstance(value, bool):
+        problems.append(f"{key} must be an integer")
 
 
 def _validate_verdict(raw: dict[str, Any], prefix: str, problems: list[str], *, allow_missing: bool) -> None:
@@ -242,6 +308,16 @@ def _record_from_json(raw: dict[str, Any]) -> Record2:
         botmap_calls=raw.get("botmap_calls", 0),
         answer=dict(raw.get("answer", {})),
         attempt=_attempt_from_json(attempt) if isinstance(attempt, dict) else None,
+        question=raw.get("question", ""),
+        place=raw.get("place"),
+        score=raw.get("score"),
+        token_efficiency=raw.get("token_efficiency"),
+        wallclock_efficiency=raw.get("wallclock_efficiency"),
+        total_tokens=raw.get("total_tokens", 0),
+        duration_ms=raw.get("duration_ms", 0),
+        cost_usd=raw.get("cost_usd", 0.0),
+        reasoning_trace=tuple(raw.get("reasoning_trace", ())),
+        route_judge=raw.get("route_judge"),
     )
 
 

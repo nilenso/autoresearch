@@ -15,12 +15,13 @@ from __future__ import annotations
 
 import statistics
 import subprocess
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 
 import gepa.optimize_anything as oa
 
 from . import config, runner
+from .agenteval import contract
 from .agenteval import score as agenteval_score
 from .agenteval.explain import explain
 from .agenteval.record import build_record
@@ -95,7 +96,8 @@ class Evaluator:
             return 0.0, {"Blocked": problem}
 
         attempts = runner.ask_repeatedly(example, tree, keep_dir=self.keep_dir)
-        measured = [_measure_attempt(a, self.reference.get(example.id)) for a in attempts]
+        measured = [_measure_attempt(a, self.reference.get(example.id), example, self.keep_dir)
+                    for a in attempts]
         usable = [item for item in measured if not item["score"].excluded]
 
         # Every try crashed, timed out, or hit an environment failure. That's a
@@ -143,8 +145,13 @@ class Evaluator:
         }
 
 
-def _measure_attempt(attempt, reference: Reading | None) -> dict:
-    record = build_record(attempt)
+def _measure_attempt(attempt, reference: Reading | None, question: Question,
+                      keep_dir: Path | None) -> dict:
+    # The raw transcript only survives past this call if it was copied into
+    # keep_dir -- runner.ask()'s scratch workdir is already gone by now.
+    transcript_path = (keep_dir / f"{question.id}__r{attempt.repeat}" / "transcript.jsonl"
+                        if keep_dir is not None else None)
+    record = build_record(attempt, question=question, transcript_path=transcript_path)
     tokens = attempt.transcript.usage.total_tokens
     wall = attempt.transcript.usage.duration_ms
     token_eff = agenteval_score.efficiency(reference.tokens if reference else None, tokens)
@@ -155,4 +162,11 @@ def _measure_attempt(attempt, reference: Reading | None) -> dict:
         token_efficiency=token_eff,
         wallclock=wall_eff,
     )
+    # Attach what only became known by scoring this record -- can't be part
+    # of build_record() itself, since score_record() needs the record as
+    # its input.
+    record = replace(record, score=scored.value, token_efficiency=token_eff,
+                      wallclock_efficiency=wall_eff)
+    if keep_dir is not None:
+        contract.write(keep_dir / f"{question.id}__r{attempt.repeat}" / "record-v2.json", record)
     return {"attempt": attempt, "record": record, "score": scored}
