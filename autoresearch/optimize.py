@@ -91,6 +91,12 @@ def _objective_text(lever: str) -> str:
             "question about maps and nothing else, reliably works out the right command "
             "on the first or second try."
         )
+    if lever == config.WIDE_LEVER:
+        return (
+            "Rewrite this command-line tool's source and its instructions so an AI "
+            "assistant, given nothing but a plain-English question about maps, "
+            "reliably works out the right command on the first or second try."
+        )
     return (
         "Rewrite these instructions so an AI assistant reading them reliably works out "
         "the right `botmap` command for a plain-English map question."
@@ -326,8 +332,12 @@ def run(lever: str, budget: int, iterations: int, holdout: float, reflection_lm:
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--lever", choices=sorted(config.LEVERS), default="tool",
-                   help="which single file to evolve (default: tool)")
+    p.add_argument("--lever", choices=sorted(config.LEVERS) + [config.WIDE_LEVER], default="tool",
+                   help="which surface to evolve (default: tool). 'tool' is 4 files, "
+                        "'prompt' is skill.md alone, 'wide' is every discoverable "
+                        f"botmap/*.py module (see NEVER_EVOLVE) plus skill.md together — "
+                        "pair it with --full-repo-context so the proposer can read the "
+                        "rest of the repo without being able to write to it")
     p.add_argument("--iterations", type=int, default=15,
                    help="how many proposal rounds to run (default: 15) — this is the "
                         "primary control on run length, via GEPA's own "

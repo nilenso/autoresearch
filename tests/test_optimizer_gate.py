@@ -81,10 +81,25 @@ def test_background_and_objective_never_quote_a_real_question_verbatim():
 
     bank = qmod.load()
     haystacks = [optimize.BACKGROUND, optimize._objective_text("tool"),
-                 optimize._objective_text("prompt")]
+                 optimize._objective_text("prompt"), optimize._objective_text("wide")]
 
     for question in bank:
         for haystack in haystacks:
             assert question.question not in haystack, (
                 f"{question.id!r}'s text appears verbatim in a prompt template"
             )
+
+
+def test_wide_lever_gets_its_own_objective_not_the_prompt_levers():
+    """_objective_text() used to be a two-way if/else, so any lever that
+    wasn't literally 'tool' silently fell into the prompt-lever wording --
+    asking the proposer to rewrite instructions when 'wide' is actually
+    rewriting Python source too. Caught by reconstructing the actual final
+    prompt text end to end, not by reading the branch in isolation.
+    """
+    from autoresearch import optimize
+
+    wide = optimize._objective_text("wide")
+
+    assert "source" in wide
+    assert wide != optimize._objective_text("prompt")

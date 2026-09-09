@@ -570,14 +570,31 @@ def full_repo_context(repo: Path | None = None,
     return "".join(parts)
 
 
+WIDE_LEVER = "wide"
+
+# lever_files() recognises this as a third, dynamically-discovered lever
+# alongside the two static entries in LEVERS — everything discoverable_files()
+# says curated wide mode may touch, plus the prompt, so both the tool's source
+# and its instructions are in scope together. Not folded into LEVERS itself
+# because that dict is a fixed list; this one is computed fresh against
+# whatever botmap/*.py currently exists.
+
+
 def lever_files(lever: str, override: tuple[str, ...] | None = None) -> tuple[str, ...]:
     """The files a run is allowed to change, relative to the tool's repo.
 
     `override` lets the operator widen or narrow the search without editing
     this file — see `--files` and `--all-files` on the optimiser.
     """
+    if lever == WIDE_LEVER:
+        if override:
+            missing = [f for f in override if not (repo_root() / f).exists()]
+            if missing:
+                raise ValueError(f"these files do not exist in the tool: {missing}")
+            return tuple(override)
+        return discoverable_files() + LEVERS["prompt"]
     if lever not in LEVERS:
-        raise ValueError(f"unknown lever {lever!r}; pick one of {sorted(LEVERS)}")
+        raise ValueError(f"unknown lever {lever!r}; pick one of {sorted(LEVERS)}, {WIDE_LEVER!r}")
     if override:
         missing = [f for f in override if not (repo_root() / f).exists()]
         if missing:
