@@ -75,7 +75,7 @@ def load(path: Path | None = None) -> list[Question]:
     return out
 
 
-def split(questions: list[Question], holdout: float = 0.2) -> tuple[list[Question], list[Question]]:
+def split(questions: list[Question], holdout: float = 0.5) -> tuple[list[Question], list[Question]]:
     """Split into questions we optimise on, and questions we check against.
 
     The held-out set is what tells us whether an improvement is real or whether
@@ -84,7 +84,11 @@ def split(questions: list[Question], holdout: float = 0.2) -> tuple[list[Questio
     aren't comparable.
 
     We also make sure both halves cover every difficulty tier, so the held-out
-    score isn't accidentally all-easy or all-hard.
+    score isn't accidentally all-easy or all-hard -- which only holds when
+    every tier has at least `round(1 / holdout)` questions in it. On the
+    current 29-question bank (smallest tier: 3) that requires holdout >= ~1/3;
+    0.5 is the default GEPA runs use, verified against the real question bank
+    rather than assumed.
     """
     if not 0 < holdout < 1:
         raise ValueError("holdout must be between 0 and 1")

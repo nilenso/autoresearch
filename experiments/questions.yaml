@@ -189,21 +189,6 @@
 # Tier 4 — multi-verb; needs a plan before the first call.
 # ---------------------------------------------------------------------------
 
-- id: clipping-polygon-qgis
-  question: "I need a clipping polygon for Malta to use in QGIS."
-  tier: 4
-  download_is_legitimate: false
-  target_type: division_area
-  place: "Malta"
-  notes: "Ideal: where Malta --geometry > malta.geojson. Correct but returns after ~20 min with no output — a strong answer time-boxes the wait and reports the latency."
-
-- id: which-admin-areas
-  question: "Which city and state is the point 42.3736, -71.1097 in?"
-  tier: 4
-  download_is_legitimate: false
-  target_type: division
-  notes: "Ideal: containing 42.3736,-71.1097 (correct, but ~10 min with no output). Fast fallback: at 42.3736,-71.1097 -t place -n 1 and read the address. Answer is Cambridge, MA."
-
 - id: pharmacy-near-address
   question: "What's the nearest pharmacy to 770 Massachusetts Avenue, Cambridge MA?"
   tier: 4
