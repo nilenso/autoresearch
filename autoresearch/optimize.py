@@ -43,7 +43,7 @@ You are improving a command-line tool called `botmap`, which answers questions
 about map data (places, buildings, roads, addresses, administrative areas).
 
 The people using it are AI assistants, not humans. An assistant is given a
-plain-English question such as "how many hospitals are in Rhode Island?", has a
+plain-English question such as "how many parks are in Lisbon?", has a
 shell, and must work out the right `botmap` command on its own. Nobody tells it
 which command to use. Working that out is exactly what is being measured.
 
@@ -144,6 +144,12 @@ def run(lever: str, budget: int, holdout: float, reflection_lm: str,
 
     bank = qmod.load()
     train, val = qmod.split(bank, holdout)
+    # split() already guarantees this by construction; asserted here too
+    # because it is the one thing standing between a correct run and a
+    # silent copy-paste bug below, where `dataset=`/`valset=` get swapped.
+    assert not ({q.id for q in train} & {q.id for q in val}), (
+        "train and held-out questions overlap — refusing to run"
+    )
     print(f"[oa] {len(train)} questions to learn from, {len(val)} held back to check")
 
     run_dir = config.ROOT / "experiments" / "runs" / f"{lever}-{sha}-{int(started)}"
@@ -292,8 +298,12 @@ def main() -> None:
                    help="which single file to evolve (default: tool)")
     p.add_argument("--budget", type=int, default=60,
                    help="how many candidate evaluations to allow (default: 60)")
-    p.add_argument("--holdout", type=float, default=0.2,
-                   help="fraction of questions kept back to check generalisation")
+    p.add_argument("--holdout", type=float, default=0.5,
+                   help="fraction of questions kept back to check generalisation "
+                        "(default: 0.5, which is 16 training / 13 held-out on the "
+                        "current 29-question bank — verified by running split(), "
+                        "not derived from the fraction alone, since the tiers are "
+                        "uneven sizes)")
     p.add_argument("--reflection-lm", default=config.REFLECTION_LM,
                    help="the model that reads the feedback and proposes changes "
                         f"(default: {config.REFLECTION_LM}, via {config.REFLECTION_KEY_VAR})")
