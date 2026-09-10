@@ -75,3 +75,45 @@ def test_no_judge_verdict_renders_nothing_extra():
 
 def test_attempt_traces_section_reports_when_empty():
     assert "No candidate attempts kept yet" in render.attempt_traces_section([], title="candidate attempts")
+
+
+def test_accepted_proposal_shows_the_pass_color_and_both_scores():
+    html = render.proposal_card({
+        "iteration": 3, "component": "botmap/data/skill.md", "accepted": True,
+        "score_before": 0.42, "score_after": 0.71,
+        "prompt": "p", "raw_lm_output": "r", "diff": "",
+    })
+    assert render._PASS_COLOR in html
+    assert "accepted" in html
+    assert "0.420" in html and "0.710" in html
+
+
+def test_rejected_proposal_shows_the_fail_color():
+    html = render.proposal_card({
+        "iteration": 4, "component": "cli.py", "accepted": False,
+        "score_before": 0.5, "score_after": 0.4,
+        "prompt": "p", "raw_lm_output": "r", "diff": "",
+    })
+    assert render._FAIL_COLOR in html
+    assert "rejected" in html
+
+
+def test_diff_lines_are_colored_by_prefix_and_escaped_exactly_once():
+    diff = "\n".join([
+        "--- a (parent)", "+++ b (proposed)", "@@ -1 +1 @@",
+        "-old line with 'quotes'", "+new line", " unchanged",
+    ])
+    html = render._diff_html(diff)
+
+    assert "diff-hdr" in html and "diff-hunk" in html
+    assert '<span class="diff-del">-old line' in html
+    assert '<span class="diff-add">+new line' in html
+    assert "&amp;#x27;" not in html  # would indicate double-escaping
+
+
+def test_an_empty_diff_says_so_rather_than_showing_nothing():
+    assert "no textual change" in render._diff_html("")
+
+
+def test_proposals_section_reports_when_empty():
+    assert "No proposals logged yet" in render.proposals_section([])

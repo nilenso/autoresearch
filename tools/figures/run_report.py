@@ -34,7 +34,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import extract  # noqa: E402
 import render  # noqa: E402
 from build_figures import SCRIPT, STYLE  # noqa: E402
-from render import TRACE_STYLE  # noqa: E402
+from render import EXTRA_STYLE  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 RUNS_DIR = ROOT / "experiments" / "runs"
@@ -148,6 +148,7 @@ def build(run_name: str) -> str:
         extract.recent_attempts(candidate_attempts), title="candidate attempts")
     baseline_traces = render.attempt_traces_section(
         extract.recent_attempts(baseline_attempts), title="baseline attempts")
+    proposals_html = render.proposals_section(extract.recent_proposals(run_dir))
 
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     if summary is not None:
@@ -167,6 +168,11 @@ def build(run_name: str) -> str:
 
 <h2>Every-candidate loss</h2>
 {loss_section}
+
+<h2>Proposals</h2>
+<p class="note">What the reflection LM actually proposed, per component, most recent first --
+accepted/rejected, the score before and after, and the diff.</p>
+{proposals_html}
 
 <h2>Pass rate &amp; duration, before vs. after</h2>
 {bars_section}
@@ -194,7 +200,7 @@ def _page(body: str, *, refresh_seconds: int | None = None) -> str:
     # have to remember to reopen by hand.
     refresh = f'<meta http-equiv="refresh" content="{refresh_seconds}">' if refresh_seconds else ""
     return f"<!DOCTYPE html>\n<html><head><meta charset='utf-8'>{refresh}" \
-           f"<title>Run report</title><style>{STYLE}{TRACE_STYLE}</style></head>" \
+           f"<title>Run report</title><style>{STYLE}{EXTRA_STYLE}</style></head>" \
            f"<body>{body}<script>{SCRIPT}</script></body></html>\n"
 
 

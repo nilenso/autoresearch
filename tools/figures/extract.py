@@ -306,3 +306,28 @@ def recent_attempts(attempts_dir: Path, limit: int = 12) -> list:
     files = _record_files(attempts_dir)
     files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
     return _load_records_tolerantly(files[:limit])
+
+
+def recent_proposals(run_dir: Path, limit: int = 20) -> list[dict]:
+    """The most recent rows from proposals.jsonl (optimize.py::ProposalLedger),
+    newest first.
+
+    Tolerant the same way record-v2.json reads are: proposals.jsonl is
+    appended to line-by-line while GEPA is still running, so a rebuild mid
+    -write could catch a half-written trailing line -- skip it rather than
+    fail the whole read, same reasoning as trace.py::parse_calls().
+    """
+    path = run_dir / "gepa" / "proposals.jsonl"
+    if not path.exists():
+        return []
+    rows = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            rows.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    rows.reverse()
+    return rows[:limit]

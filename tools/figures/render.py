@@ -449,10 +449,80 @@ def attempt_traces_section(records: list, *, title: str) -> str:
     return f'<div class="trace-list">{cards}</div>'
 
 
-# Extra CSS for the trace cards above -- not part of build_figures.py's
+# ---------------------------------------------------------------------------
+# GEPA proposals -- what the reflection LM actually proposed, per component,
+# accepted or rejected, with the diff between what it started from and what
+# it produced. Source: optimize.py::ProposalLedger via proposals.jsonl.
+# ---------------------------------------------------------------------------
+
+
+def _diff_html(diff_text: str) -> str:
+    """A unified diff, colored line by line. No syntax-highlighting library
+    -- four line-prefix checks cover the whole unified-diff format.
+    """
+    if not diff_text:
+        return '<span class="diff-ctx">(no textual change)</span>'
+    lines = []
+    for line in diff_text.splitlines():
+        if line.startswith("+++") or line.startswith("---"):
+            cls = "diff-hdr"
+        elif line.startswith("@@"):
+            cls = "diff-hunk"
+        elif line.startswith("+"):
+            cls = "diff-add"
+        elif line.startswith("-"):
+            cls = "diff-del"
+        else:
+            cls = "diff-ctx"
+        lines.append(f'<span class="{cls}">{escape(line)}</span>')
+    return "".join(lines)
+
+
+def proposal_card(row: dict) -> str:
+    """One row from proposals.jsonl: iteration, component, accept/reject,
+    scores, and the diff -- with the full prompt and raw LM output tucked
+    behind a details toggle for whoever wants to dig that far.
+    """
+    accepted = row.get("accepted")
+    color = _PASS_COLOR if accepted else _FAIL_COLOR
+    label = "accepted" if accepted else "rejected"
+
+    before = row.get("score_before")
+    after = row.get("score_after")
+    score_bits = []
+    if before is not None:
+        score_bits.append(f"{before:.3f}")
+    if after is not None:
+        score_bits.append(f"<b>{after:.3f}</b>" if score_bits else f"score <b>{after:.3f}</b>")
+    score_text = " &rarr; ".join(score_bits) if score_bits else "score n/a"
+
+    diff = _diff_html(row.get("diff", ""))
+    raw_output = escape(row.get("raw_lm_output", ""))
+    prompt = escape(row.get("prompt", ""))
+
+    return f"""<details class="proposal-card" style="border-left-color:{color}">
+<summary>
+  <span class="trace-badge" style="background:{color}">{label}</span>
+  <b>iteration {row.get("iteration")}</b>
+  <code>{escape(row.get("component", ""))}</code>
+  <span class="proposal-score">{score_text}</span>
+</summary>
+<pre class="proposal-diff">{diff}</pre>
+<details class="proposal-raw"><summary>Full prompt sent to the reflection LM</summary><pre>{prompt}</pre></details>
+<details class="proposal-raw"><summary>Raw LM output</summary><pre>{raw_output}</pre></details>
+</details>"""
+
+
+def proposals_section(rows: list[dict]) -> str:
+    if not rows:
+        return '<p class="note">No proposals logged yet.</p>'
+    return f'<div class="proposal-list">{"".join(proposal_card(r) for r in rows)}</div>'
+
+
+# Extra CSS for the trace and proposal cards -- not part of build_figures.py's
 # STYLE, since that's specifically the historical report's stylesheet and
 # these components only exist in run_report.py's live progress page.
-TRACE_STYLE = """
+EXTRA_STYLE = """
 .trace-list { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
 .trace-card { background: var(--surface-1); border: 1px solid var(--border); border-left: 4px solid; border-radius: 8px; padding: 10px 14px; }
 .trace-card summary { cursor: pointer; display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-size: 13px; }
@@ -473,4 +543,18 @@ TRACE_STYLE = """
 .trace-event-result { background: rgba(27,175,122,.12); color: var(--series-3); font-family: ui-monospace, monospace; }
 .trace-event-thinking { color: var(--muted); font-style: italic; }
 .trace-event-text { color: var(--text-secondary); }
+
+.proposal-list { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.proposal-card { background: var(--surface-1); border: 1px solid var(--border); border-left: 4px solid; border-radius: 8px; padding: 10px 14px; }
+.proposal-card summary { cursor: pointer; display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-size: 13px; flex-wrap: wrap; }
+.proposal-score { font-variant-numeric: tabular-nums; font-size: 12.5px; color: var(--text-secondary); }
+.proposal-score b { color: var(--text-primary); }
+.proposal-diff { margin: 8px 0 0; padding: 8px 10px; background: var(--page); border-radius: 6px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; line-height: 1.5; }
+.diff-add { background: rgba(27,175,122,.14); color: #14875a; display: block; white-space: pre; }
+.diff-del { background: rgba(224,71,90,.14); color: #b3374a; display: block; white-space: pre; }
+.diff-hunk { color: var(--series-1); font-weight: 600; display: block; white-space: pre; }
+.diff-hdr { color: var(--muted); display: block; white-space: pre; }
+.diff-ctx { color: var(--text-secondary); display: block; white-space: pre; }
+.proposal-raw summary { color: var(--text-secondary); font-size: 12px; margin-top: 8px; }
+.proposal-raw pre { font-size: 11px; white-space: pre-wrap; word-break: break-word; color: var(--text-secondary); margin: 6px 0 0; }
 """

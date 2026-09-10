@@ -95,3 +95,36 @@ def test_candidate_loss_series_tracks_best_so_far_and_the_baseline(tmp_path):
     # candidate 0's loss instead of getting worse.
     assert [round(p["best_so_far"], 2) for p in series["points"]] == [0.42, 0.42, 0.30]
     assert series["best_idx"] == 2
+
+
+def test_recent_proposals_reads_newest_first(tmp_path):
+    run_dir = tmp_path / "run"
+    (run_dir / "gepa").mkdir(parents=True)
+    path = run_dir / "gepa" / "proposals.jsonl"
+    path.write_text("\n".join([
+        json.dumps({"iteration": 1, "component": "cli.py", "accepted": True}),
+        json.dumps({"iteration": 2, "component": "cli.py", "accepted": False}),
+    ]) + "\n")
+
+    rows = extract.recent_proposals(run_dir)
+
+    assert [r["iteration"] for r in rows] == [2, 1]
+
+
+def test_recent_proposals_skips_a_mid_write_line(tmp_path):
+    run_dir = tmp_path / "run"
+    (run_dir / "gepa").mkdir(parents=True)
+    path = run_dir / "gepa" / "proposals.jsonl"
+    path.write_text(
+        json.dumps({"iteration": 1, "component": "cli.py", "accepted": True}) + "\n"
+        + '{"iteration": 2, "component": "cli.py"'  # truncated mid-write
+    )
+
+    rows = extract.recent_proposals(run_dir)
+
+    assert len(rows) == 1
+    assert rows[0]["iteration"] == 1
+
+
+def test_recent_proposals_is_empty_when_the_file_does_not_exist_yet(tmp_path):
+    assert extract.recent_proposals(tmp_path / "run") == []
